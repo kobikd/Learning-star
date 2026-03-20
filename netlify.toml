@@ -1,4 +1,4 @@
 [build]
   base    = "learning-star"
-  command = "npm run build"
-  publish = "learning-star/dist"
+  command = "npm install --legacy-peer-deps && npm run build"
+  publish = "dist"
