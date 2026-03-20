@@ -1,0 +1,202 @@
+{
+  "$schema": "../types/curriculum.ts",
+  "subject": "math",
+  "domains": [
+    {
+      "id": "domain1_numberSense",
+      "name": "הכרת מספרים",
+      "subject": "math",
+      "levels": [
+        {
+          "id": "ns1",
+          "name": "מספרים 1-10",
+          "skills": [
+            "counting",
+            "recognition",
+            "ordering"
+          ],
+          "craStage": "concrete"
+        },
+        {
+          "id": "ns2",
+          "name": "מספרים 11-20",
+          "skills": [
+            "teen_numbers",
+            "place_value_intro"
+          ],
+          "craStage": "representational"
+        },
+        {
+          "id": "ns3",
+          "name": "מספרים עד 100",
+          "skills": [
+            "tens",
+            "ones",
+            "place_value"
+          ],
+          "craStage": "abstract"
+        }
+      ]
+    },
+    {
+      "id": "domain2_addition",
+      "name": "חיבור",
+      "subject": "math",
+      "levels": [
+        {
+          "id": "add1",
+          "name": "חיבור עד 10",
+          "skills": [
+            "add_objects",
+            "add_numberline",
+            "add_abstract"
+          ],
+          "craStage": "concrete"
+        },
+        {
+          "id": "add2",
+          "name": "חיבור עד 20",
+          "skills": [
+            "add_with_crossing_10",
+            "make_10_strategy"
+          ],
+          "craStage": "representational"
+        },
+        {
+          "id": "add3",
+          "name": "חיבור עשרות",
+          "skills": [
+            "add_tens",
+            "add_2digit_no_carry"
+          ],
+          "craStage": "abstract"
+        }
+      ]
+    },
+    {
+      "id": "domain3_subtraction",
+      "name": "חיסור",
+      "subject": "math",
+      "levels": [
+        {
+          "id": "sub1",
+          "name": "חיסור עד 10",
+          "skills": [
+            "sub_objects",
+            "sub_numberline",
+            "sub_abstract"
+          ],
+          "craStage": "concrete"
+        },
+        {
+          "id": "sub2",
+          "name": "חיסור עד 20",
+          "skills": [
+            "sub_crossing_10"
+          ],
+          "craStage": "representational"
+        }
+      ]
+    },
+    {
+      "id": "domain4_geometry",
+      "name": "צורות",
+      "subject": "math",
+      "levels": [
+        {
+          "id": "geo1",
+          "name": "צורות בסיסיות",
+          "skills": [
+            "circle",
+            "square",
+            "triangle",
+            "rectangle"
+          ],
+          "craStage": "concrete"
+        },
+        {
+          "id": "geo2",
+          "name": "תכונות צורות",
+          "skills": [
+            "sides",
+            "corners",
+            "size_compare"
+          ],
+          "craStage": "representational"
+        }
+      ]
+    },
+    {
+      "id": "domain5_measurement",
+      "name": "מדידה",
+      "subject": "math",
+      "levels": [
+        {
+          "id": "meas1",
+          "name": "השוואת גדלים",
+          "skills": [
+            "longer_shorter",
+            "heavier_lighter"
+          ],
+          "craStage": "concrete"
+        },
+        {
+          "id": "meas2",
+          "name": "שעון",
+          "skills": [
+            "full_hour",
+            "half_hour"
+          ],
+          "craStage": "representational"
+        }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "countingGarden",
+      "name": "גן הספירה",
+      "type": "counting",
+      "category": "math",
+      "interaction": "tap_to_count",
+      "domainId": "domain1_numberSense",
+      "minLevel": "ns1"
+    },
+    {
+      "id": "numberLineFrog",
+      "name": "צפרדע על ציר המספרים",
+      "type": "number_line",
+      "category": "math",
+      "interaction": "tap_target",
+      "domainId": "domain1_numberSense",
+      "minLevel": "ns1"
+    },
+    {
+      "id": "mathBubbles",
+      "name": "בועות חשבון",
+      "type": "choose_answer",
+      "category": "math",
+      "interaction": "tap_choice",
+      "domainId": "domain2_addition",
+      "minLevel": "add1"
+    },
+    {
+      "id": "balanceScale",
+      "name": "מאזניים",
+      "type": "comparison",
+      "category": "math",
+      "interaction": "drag_and_drop_easy",
+      "domainId": "domain5_measurement",
+      "minLevel": "meas1"
+    },
+    {
+      "id": "shopGame",
+      "name": "החנות שלי",
+      "type": "money_math",
+      "category": "math",
+      "interaction": "drag_coins",
+      "domainId": "domain1_numberSense",
+      "minLevel": "ns3"
+    }
+  ]
+}

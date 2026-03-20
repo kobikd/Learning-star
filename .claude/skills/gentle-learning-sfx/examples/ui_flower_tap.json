@@ -1,0 +1,20 @@
+{
+  "purpose": "Soft marimba pluck when Gefen taps a flower to count it",
+  "purpose_he": "צליל רך כשגפן לוחצת על פרח כדי לספור אותו",
+  "category": "ui_tap",
+  "type": "sfx",
+  "mood": "soft magical warm sparkly",
+  "duration_seconds": 0.5,
+  "loop": false,
+  "sensory_rules": [
+    "no harsh attack",
+    "gentle and predictable",
+    "warm wooden timbre",
+    "ascending pitch per tap number"
+  ],
+  "forbidden_traits": ["metallic", "alarm-like", "loud", "sharp", "abrasive"],
+  "prompt_for_elevenlabs": "A very soft gentle warm marimba pluck for a Hebrew children's educational counting app, single wooden tone struck softly, rounded attack, short warm resonant decay, like touching a soft wooden xylophone key, friendly and responsive, no harsh attack, no sharp highs, very short under one second.",
+  "suggested_filename": "ui_flower_tap_soft_warm_01.mp3",
+  "script_entry": "(\"ui_flower_tap_1.mp3\", \"A very soft gentle warm marimba pluck for a Hebrew children's counting app, single low C tone, rounded attack, short warm decay, friendly and responsive, no harsh attack, no sharp highs.\", 0.5)",
+  "tags": ["ui_tap", "flower", "counting", "marimba", "child-friendly", "hebrew", "warm"]
+}

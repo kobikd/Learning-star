@@ -1,0 +1,85 @@
+/* ============================================================
+   index.css — Tailwind v4 entry point
+   Imports globals first, then maps CSS variables → Tailwind
+   design tokens via @theme.
+   ============================================================ */
+
+@import "tailwindcss";
+@import "./styles/globals.css";
+
+/* ── Tailwind v4 theme — maps CSS vars to utility classes ──── */
+@theme {
+
+  /* ── Colors ─────────────────────────────────────────────── */
+  --color-bg-primary:       var(--bg-primary);
+  --color-bg-secondary:     var(--bg-secondary);
+  --color-bg-surface:       var(--bg-surface);
+
+  --color-math:             var(--color-math);
+  --color-math-light:       var(--color-math-light);
+  --color-math-dark:        var(--color-math-dark);
+
+  --color-reading:          var(--color-reading);
+  --color-reading-light:    var(--color-reading-light);
+  --color-reading-dark:     var(--color-reading-dark);
+
+  --color-games:            var(--color-games);
+  --color-games-light:      var(--color-games-light);
+  --color-games-dark:       var(--color-games-dark);
+
+  --color-success:          var(--color-success);
+  --color-success-light:    var(--color-success-light);
+  --color-try-again:        var(--color-try-again);
+  --color-try-again-light:  var(--color-try-again-light);
+  --color-hint:             var(--color-hint);
+
+  --color-stars:            var(--color-stars);
+
+  --color-text-primary:     var(--text-primary);
+  --color-text-secondary:   var(--text-secondary);
+  --color-text-on-dark:     var(--text-on-dark);
+  --color-text-placeholder: var(--text-placeholder);
+
+  --color-border:           var(--border-default);
+  --color-border-focus:     var(--border-focus);
+
+  /* ── Typography ─────────────────────────────────────────── */
+  --font-sans:              var(--font-primary);
+
+  --text-title:             var(--text-title);
+  --text-number:            var(--text-number);
+  --text-instruction:       var(--text-instruction);
+  --text-content:           var(--text-content);
+  --text-button:            var(--text-button);
+  --text-body:              var(--text-body);
+  --text-label:             var(--text-label);
+
+  /* ── Border radius ──────────────────────────────────────── */
+  --radius-sm:   var(--radius-sm);
+  --radius-md:   var(--radius-md);
+  --radius-lg:   var(--radius-lg);
+  --radius-xl:   var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --shadow-sm:   var(--shadow-sm);
+  --shadow-md:   var(--shadow-md);
+  --shadow-lg:   var(--shadow-lg);
+  --shadow-star: var(--shadow-star);
+
+  /* ── Transitions ────────────────────────────────────────── */
+  --duration-fast:   var(--duration-fast);
+  --duration-normal: var(--duration-normal);
+  --duration-slow:   var(--duration-slow);
+
+  /* ── Touch sizes (custom spacing values) ────────────────── */
+  --spacing-touch-min:       4rem;   /* 64px */
+  --spacing-touch-preferred: 5rem;   /* 80px */
+}
+
+/* ── App shell ──────────────────────────────────────────────── */
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}

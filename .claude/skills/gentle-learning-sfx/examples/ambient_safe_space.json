@@ -1,0 +1,22 @@
+{
+  "purpose": "Soft ambient loop for the Safe Space screen — a calm quiet room Gefen can retreat to",
+  "purpose_he": "רקע שקט למסך ה'מקום הבטוח' — חדר שקט שגפן יכולה לנוח בו",
+  "category": "ambient_loop",
+  "type": "sfx",
+  "mood": "flowing peaceful warm calming",
+  "duration_seconds": 20.0,
+  "loop": true,
+  "sensory_rules": [
+    "no harsh attack",
+    "no sudden changes in volume or texture",
+    "gentle and predictable",
+    "low-to-mid frequency emphasis",
+    "seamless loop — no audible gap or click",
+    "must not demand attention — purely background"
+  ],
+  "forbidden_traits": ["metallic", "alarm-like", "loud", "rushing", "crashing", "sharp", "distracting", "melodic hooks that demand attention"],
+  "prompt_for_elevenlabs": "A very soft peaceful ambient sound for a Hebrew children's educational app safe space screen, gentle flowing water with very quiet soft bubbles, warm and enveloping like sitting beside a calm shallow stream on a sunny afternoon, soothing and meditative, purely background texture that does not demand attention, smooth seamlessly loopable, no harsh sounds, no sudden changes, 20 seconds.",
+  "suggested_filename": "ambient_safe_space_peaceful_warm_01.mp3",
+  "script_entry": "(\"safe_space_ambient.mp3\", \"A very soft peaceful ambient water sound for a Hebrew children's safe space screen, gentle flowing stream with quiet soft bubbles, warm and calming, seamlessly loopable, no sudden changes, 20 seconds.\", 20.0)",
+  "tags": ["ambient_loop", "safe-space", "water", "peaceful", "calming", "child-friendly", "hebrew", "loopable"]
+}

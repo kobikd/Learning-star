@@ -1,0 +1,215 @@
+{
+  "$schema": "../types/curriculum.ts",
+  "subject": "reading",
+  "domains": [
+    {
+      "id": "domain1_phonology",
+      "name": "צלילים ואותיות",
+      "subject": "reading",
+      "levels": [
+        {
+          "id": "ph1",
+          "name": "אותיות א-י",
+          "skills": [
+            "letter_recognition",
+            "letter_sound",
+            "letter_writing"
+          ]
+        },
+        {
+          "id": "ph2",
+          "name": "אותיות כ-ת",
+          "skills": [
+            "letter_recognition",
+            "letter_sound",
+            "letter_writing"
+          ]
+        },
+        {
+          "id": "ph3",
+          "name": "אותיות סופיות",
+          "skills": [
+            "final_letters"
+          ]
+        },
+        {
+          "id": "ph4",
+          "name": "ניקוד",
+          "skills": [
+            "kamatz",
+            "patach",
+            "tseire",
+            "segol",
+            "hirik",
+            "holam",
+            "kubutz",
+            "shuruk"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "domain2_decoding",
+      "name": "קריאת מילים",
+      "subject": "reading",
+      "levels": [
+        {
+          "id": "dec1",
+          "name": "הברות פתוחות",
+          "skills": [
+            "cv_syllables"
+          ]
+        },
+        {
+          "id": "dec2",
+          "name": "הברות סגורות",
+          "skills": [
+            "cvc_syllables"
+          ]
+        },
+        {
+          "id": "dec3",
+          "name": "מילים בנות 2 הברות",
+          "skills": [
+            "two_syllable_words"
+          ]
+        },
+        {
+          "id": "dec4",
+          "name": "מילים ארוכות",
+          "skills": [
+            "multi_syllable",
+            "common_words"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "domain3_reading",
+      "name": "קריאה",
+      "subject": "reading",
+      "levels": [
+        {
+          "id": "read1",
+          "name": "משפטים קצרים",
+          "skills": [
+            "3_word_sentences",
+            "with_pictures"
+          ]
+        },
+        {
+          "id": "read2",
+          "name": "קטעים קצרים",
+          "skills": [
+            "2_3_sentences",
+            "comprehension_pictures"
+          ]
+        },
+        {
+          "id": "read3",
+          "name": "סיפורים קצרים",
+          "skills": [
+            "short_stories",
+            "comprehension_questions"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "domain4_writing",
+      "name": "כתיבה",
+      "subject": "reading",
+      "levels": [
+        {
+          "id": "wr1",
+          "name": "העתקת אותיות",
+          "skills": [
+            "tracing",
+            "copying_letters"
+          ]
+        },
+        {
+          "id": "wr2",
+          "name": "כתיבת מילים",
+          "skills": [
+            "spelling_cv",
+            "spelling_cvc"
+          ]
+        },
+        {
+          "id": "wr3",
+          "name": "השלמת משפטים",
+          "skills": [
+            "fill_in_word",
+            "choose_word"
+          ]
+        }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "letterExplorer",
+      "name": "גלאי האותיות",
+      "type": "letter_learning",
+      "category": "reading",
+      "interaction": "see_hear_trace",
+      "domainId": "domain1_phonology",
+      "minLevel": "ph1"
+    },
+    {
+      "id": "syllableBuilder",
+      "name": "בונה ההברות",
+      "type": "syllable_blending",
+      "category": "reading",
+      "interaction": "drag_combine",
+      "domainId": "domain2_decoding",
+      "minLevel": "dec1"
+    },
+    {
+      "id": "wordMatch",
+      "name": "התאמת מילים",
+      "type": "word_recognition",
+      "category": "reading",
+      "interaction": "tap_match",
+      "domainId": "domain2_decoding",
+      "minLevel": "dec2"
+    },
+    {
+      "id": "sentenceBuilder",
+      "name": "בונה המשפטים",
+      "type": "sentence_construction",
+      "category": "reading",
+      "interaction": "drag_order",
+      "domainId": "domain3_reading",
+      "minLevel": "read1"
+    },
+    {
+      "id": "storyTime",
+      "name": "זמן סיפור",
+      "type": "guided_reading",
+      "category": "reading",
+      "interaction": "tap_to_read",
+      "domainId": "domain3_reading",
+      "minLevel": "read2"
+    },
+    {
+      "id": "memoryGame",
+      "name": "משחק הזיכרון",
+      "type": "memory_matching",
+      "category": "shared",
+      "interaction": "tap_pair",
+      "domainId": "domain1_phonology",
+      "minLevel": "ph1"
+    },
+    {
+      "id": "puzzleWorld",
+      "name": "עולם הפאזל",
+      "type": "sequencing",
+      "category": "shared",
+      "interaction": "drag_order",
+      "domainId": "domain3_reading",
+      "minLevel": "read1"
+    }
+  ]
+}

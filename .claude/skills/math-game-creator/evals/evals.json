@@ -1,0 +1,23 @@
+{
+  "skill_name": "math-game-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "תעשי לי משחק של חיבור על קו מספרים עד 20",
+      "expected_output": "An interactive HTML game in Hebrew featuring a number line 0-20 where the child practices addition by clicking/tapping jumps on the line. Should include: RTL Hebrew interface, the hedgehog mascot (הקיפי), clean spacious layout, 6-8 practice items, visual timer, specific feedback, and multiple difficulty levels with fading prompts.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "create a place value game for hundreds, tens and ones - make it fun with dragging blocks",
+      "expected_output": "An interactive HTML game in Hebrew for practicing place value (hundreds/tens/ones) using draggable base-10 blocks. Should include: visual base-10 representations (flats/rods/units), drag-and-drop interaction, digit alignment grid, RTL Hebrew, הקיפי mascot, graduated difficulty levels, and all DCD+ASD adaptations.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "בתי צריכה לתרגל בעיות מילוליות של חלק-חלק-שלם, תכין לה משחק",
+      "expected_output": "An interactive HTML game in Hebrew for practicing part-part-whole word problems using bar model diagrams. Should include: fixed schema cards (ביחד=+, נשאר=−), small vocabulary dictionary on screen, structured 3-step approach, visual bar model, RTL Hebrew, הקיפי mascot, and all DCD+ASD adaptations with errorless learning.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "purpose": "Warm soft reaction when Gefen touches the cat character",
+  "purpose_he": "תגובה חמה ורכה כשגפן נוגעת בחתול",
+  "category": "character_reaction",
+  "type": "sfx",
+  "mood": "cute warm friendly cuddly",
+  "duration_seconds": 1.0,
+  "loop": false,
+  "sensory_rules": [
+    "no harsh attack",
+    "no sharp highs",
+    "no sudden dynamics",
+    "gentle and predictable",
+    "emotionally warm and safe",
+    "soft cat-like quality"
+  ],
+  "forbidden_traits": ["metallic", "alarm-like", "loud", "startling", "mechanical"],
+  "prompt_for_elevenlabs": "A soft warm cute reaction sound for a Hebrew children's educational app featuring a cat character, gentle playful squeak with warm fuzzy quality like a soft plush cat toy being gently squeezed, friendly and emotionally safe, rounded and cozy like a purring kitten, no harsh attack, no sharp highs, very short and gentle, about one second.",
+  "suggested_filename": "character_cat_touch_warm_cute_01.mp3",
+  "script_entry": "(\"cat_touch.mp3\", \"A soft warm cute reaction for a Hebrew children's app cat character, gentle warm squeak like a soft plush cat toy, friendly and safe, no harsh attack, no sharp highs, about one second.\", 1.0)",
+  "tags": ["character_reaction", "cat", "touch", "cute", "warm", "child-friendly", "hebrew"]
+}

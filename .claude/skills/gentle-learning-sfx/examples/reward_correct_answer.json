@@ -1,0 +1,21 @@
+{
+  "purpose": "Warm chime reward when Gefen gives the correct answer",
+  "purpose_he": "צליל עידוד חמים כשגפן עונה נכון",
+  "category": "reward",
+  "type": "sfx",
+  "mood": "warm encouraging ascending sparkly",
+  "duration_seconds": 1.5,
+  "loop": false,
+  "sensory_rules": [
+    "no harsh attack",
+    "no sudden peaks",
+    "gentle and predictable",
+    "ascending — feels positive",
+    "celebratory without overstimulating"
+  ],
+  "forbidden_traits": ["metallic", "alarm-like", "loud", "fanfare-like", "brassy", "competitive"],
+  "prompt_for_elevenlabs": "A gentle warm reward chime for a Hebrew children's educational app, three ascending soft marimba tones C E G with a light sparkle shimmer tail, encouraging and proud like a quiet kol hakavod, rounded wooden quality mixed with gentle shimmer, no sudden peaks, no metallic tone, short celebratory moment about 1.5 seconds.",
+  "suggested_filename": "reward_correct_warm_sparkle_01.mp3",
+  "script_entry": "(\"correct.mp3\", \"A gentle warm reward chime for a Hebrew children's educational app, three ascending soft marimba tones C E G with sparkle shimmer, encouraging and warm, no sudden peaks, no metallic tone, 1.5 seconds.\", 1.5)",
+  "tags": ["reward", "correct", "encouraging", "warm", "sparkle", "child-friendly", "hebrew"]
+}
