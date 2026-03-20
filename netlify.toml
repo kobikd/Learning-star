@@ -1,0 +1,4 @@
+[build]
+  base    = "learning-star"
+  command = "npm run build"
+  publish = "learning-star/dist"
