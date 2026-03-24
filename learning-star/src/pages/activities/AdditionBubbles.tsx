@@ -24,7 +24,6 @@ type ScaffoldLevel = 0 | 1 | 2 | 3;
 interface AdditionBubblesProps {
   onBack:       () => void;
   onSafeSpace:  () => void;
-  onComplete?:  () => void;
   initialLevel?: number;     // 1–5, default 1
 }
 
@@ -102,7 +101,7 @@ function hebrewNum(n: number): string {
 }
 
 function buildInstruction(a: number, b: number): string {
-  return `כַּמָּה זֶה ${hebrewNum(a)} וְ${hebrewNum(b)} בְּיַחַד?`;
+  return `כַּמָּה זֶה ${hebrewNum(a)} וְעוֹד ${hebrewNum(b)}?`;
 }
 
 // ─── Back button ──────────────────────────────────────────────────────────────
@@ -198,7 +197,6 @@ function BonusStars({ active }: { active: boolean }) {
 export function AdditionBubbles({
   onBack,
   onSafeSpace,
-  onComplete,
   initialLevel = 1,
 }: AdditionBubblesProps) {
   const { stars, recordCorrect, recordWrong } = useRewardStore();
@@ -225,8 +223,6 @@ export function AdditionBubbles({
   const totalAttemptsRef      = useRef(0);
 
   const demoTimeouts     = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const stickerTriggered = useRef(false);
-
   // ── Clear pending demo timeouts ──────────────────────────────────────────
   const clearDemo = useCallback(() => {
     demoTimeouts.current.forEach(clearTimeout);
@@ -281,10 +277,6 @@ export function AdditionBubbles({
         setTimeout(() => setShowBonus(false), 2400);
         setTimeout(() => speak("!שלוש ברצף — מדהים", "encouragement"), 600);
 
-        if (!stickerTriggered.current) {
-          stickerTriggered.current = true;
-          setTimeout(() => onComplete?.(), 3000);
-        }
       }
 
       setCatPose("wave");
@@ -325,7 +317,7 @@ export function AdditionBubbles({
         setCatMessage("אֲנִי כָּאן אִתָּךְ! 💛");
       } else if (newAttempts === 2) {
         const answerText = hebrewNum(question.answer);
-        speak(`${hebrewNum(question.a)} וְ${hebrewNum(question.b)} בְּיַחַד זֶה ${answerText}. נְנַסֶּה שׁוּב!`, "instruction");
+        speak(`${hebrewNum(question.a)} וְעוֹד ${hebrewNum(question.b)} זֶה ${answerText}. נְנַסֶּה שׁוּב!`, "instruction");
         setCatMessage(`${hebrewNum(question.a)} + ${hebrewNum(question.b)} = ${answerText}`);
       } else {
         // Will run demo
@@ -340,7 +332,7 @@ export function AdditionBubbles({
         }
       }, 700);
     }
-  }, [phase, question, wrongAttempts, level, clearDemo, recordCorrect, recordWrong, onComplete, newQuestion]); // eslint-disable-line
+  }, [phase, question, wrongAttempts, level, clearDemo, recordCorrect, recordWrong, newQuestion]); // eslint-disable-line
 
   // ── Demo: count dots step by step ────────────────────────────────────────
   const runDemo = useCallback(() => {

@@ -5,7 +5,7 @@ import { IslandButton }     from "../components/ui/IslandButton";
 import { CatCharacter }     from "../components/ui/CatCharacter";
 import { StarCounter }      from "../components/ui/StarCounter";
 import { SafeSpaceButton }  from "../components/ui/SafeSpaceButton";
-import type { ScheduleItem } from "../components/ui/VisualSchedule";
+
 import type { IslandSubject } from "../components/ui/IslandButton";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -19,122 +19,7 @@ interface WorldMapScreenProps {
   stickerCount?:   number;
   /** Which island the adaptive engine recommends right now */
   recommendedSubject?: IslandSubject;
-  scheduleItems?:  ScheduleItem[];
   onOpenAlbum?:    () => void;
-}
-
-// ─── Default schedule ─────────────────────────────────────────────────────────
-
-const DEFAULT_SCHEDULE: ScheduleItem[] = [
-  { id: "s1", label: "ברכות",        icon: "👋", status: "done"     },
-  { id: "s2", label: "אִי הַמִּסְפָּרִים", icon: "🔢", status: "active"   },
-  { id: "s3", label: "אִי הַסִּפּוּרִים",  icon: "📖", status: "upcoming" },
-  { id: "s4", label: "כּוֹכָבִים",     icon: "⭐", status: "upcoming" },
-];
-
-// ─── Inline schedule panel ────────────────────────────────────────────────────
-// A simple left-side panel (physical left = inline-end in RTL).
-// Kept local to this screen — the fixed-position VisualSchedule is for activity screens.
-
-function SchedulePanel({ items }: { items: ScheduleItem[] }) {
-  const doneCount = items.filter(i => i.status === "done").length;
-  const progress  = doneCount / Math.max(items.length, 1);
-
-  return (
-    <motion.aside
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.3, type: "spring", stiffness: 240, damping: 28 }}
-      aria-label="לוח הפעילויות של היום"
-      style={{
-        position: "fixed",
-        // Physical left edge — visible in both LTR/RTL layout
-        left: 0,
-        top: "50%",
-        transform: "translateY(-50%)",
-        zIndex: 10,
-        backgroundColor: "rgba(255,255,255,0.85)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
-        borderRadius: "0 var(--radius-lg) var(--radius-lg) 0",
-        boxShadow: "var(--shadow-md)",
-        padding: "1rem 0.75rem",
-        minWidth: 148,
-        maxWidth: 156,
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.35rem",
-      }}
-    >
-      {/* Title */}
-      <p style={{
-        fontFamily: "var(--font-primary)",
-        fontSize: "var(--text-label)",
-        fontWeight: "var(--font-bold)",
-        color: "var(--text-secondary)",
-        textAlign: "center",
-        direction: "rtl",
-        margin: 0,
-        marginBottom: "0.2rem",
-      }}>
-        📋 היום
-      </p>
-
-      {/* Progress bar */}
-      <div
-        aria-label={`${doneCount} מתוך ${items.length} הושלמו`}
-        style={{ height: 5, backgroundColor: "var(--border-default)", borderRadius: "var(--radius-full)", overflow: "hidden", marginBottom: "0.3rem" }}
-      >
-        <motion.div
-          animate={{ width: `${progress * 100}%` }}
-          transition={{ type: "spring", stiffness: 180, damping: 28 }}
-          style={{ height: "100%", backgroundColor: "var(--color-success)", borderRadius: "var(--radius-full)" }}
-        />
-      </div>
-
-      {/* Items */}
-      {items.map((item, i) => {
-        const isActive   = item.status === "active";
-        const isDone     = item.status === "done";
-        return (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.35 + i * 0.06, type: "spring", stiffness: 280, damping: 26 }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.45rem",
-              padding: "0.5rem 0.6rem",
-              borderRadius: "var(--radius-sm)",
-              backgroundColor: isActive ? "var(--color-math-light)" : isDone ? "var(--color-success-light)" : "transparent",
-              border: isActive ? "2px solid var(--color-math)" : "2px solid transparent",
-              direction: "rtl",
-            }}
-          >
-            <span aria-hidden style={{ fontSize: "1.25rem", opacity: isDone ? 0.55 : 1 }}>{item.icon}</span>
-            <span style={{
-              flex: 1,
-              fontFamily: "var(--font-primary)",
-              fontSize: "0.78rem",
-              fontWeight: isActive ? "var(--font-semibold)" : "var(--font-regular)",
-              color: isDone ? "var(--text-secondary)" : "var(--text-primary)",
-              lineHeight: 1.3,
-              direction: "rtl",
-            }}>
-              {item.label}
-            </span>
-            {isDone  && <span aria-hidden style={{ fontSize: "0.85rem" }}>✅</span>}
-            {isActive && (
-              <motion.span aria-hidden animate={{ opacity: [1,0.3,1] }} transition={{ repeat: Infinity, duration: 1.2 }}
-                style={{ fontSize: "0.6rem", color: "var(--color-math)" }}>▶</motion.span>
-            )}
-          </motion.div>
-        );
-      })}
-    </motion.aside>
-  );
 }
 
 // ─── Sticker counter badge ────────────────────────────────────────────────────
@@ -258,7 +143,6 @@ export function WorldMapScreen({
   stickerCount = 0,
   onOpenAlbum,
   recommendedSubject,
-  scheduleItems = DEFAULT_SCHEDULE,
 }: WorldMapScreenProps) {
   const [catFunny, setCatFunny] = useState(false);
 
@@ -292,9 +176,6 @@ export function WorldMapScreen({
 
       {/* Decorative map elements */}
       <TreasureDecor />
-
-      {/* Schedule sidebar — physical left */}
-      <SchedulePanel items={scheduleItems} />
 
       {/* ── Top bar ───────────────────────────────────────── */}
       <motion.header
@@ -351,7 +232,6 @@ export function WorldMapScreen({
           minHeight: "100svh",
           paddingTop: "80px",        // clear top bar
           paddingBottom: "1rem",
-          paddingInlineStart: "160px", // clear schedule panel (physical left)
         }}
       >
         {/* Islands row */}

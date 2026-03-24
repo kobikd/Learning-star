@@ -43,7 +43,7 @@ export default function App() {
   }, []);
 
   // Gamification (stars, stickers) — Zustand with localStorage persistence
-  const { stars, stickersEarned, earnNextSticker } = useRewardStore();
+  const { stars, stickersEarned } = useRewardStore();
 
   // Curriculum engine — adaptive activity selection
   const {
@@ -117,16 +117,6 @@ export default function App() {
     setScreen(activityScreen);
   }
 
-  // ── Activity completed (natural end, not back-button) ─────────────────────
-  function handleActivityComplete() {
-    finishSession();
-    refreshCurriculum();
-
-    const sticker = earnNextSticker();
-    if (sticker) setAwardSticker(sticker);
-
-    setScreen("world-map");
-  }
 
   // ── Back pressed inside activity (partial session) ────────────────────────
   function handleActivityBack() {
@@ -194,7 +184,6 @@ export default function App() {
             key="counting-garden"
             onBack={handleActivityBack}
             onSafeSpace={() => setScreen("safe-space")}
-            onComplete={handleActivityComplete}
             initialLevel={mathLevel}
           />
         )}
@@ -204,7 +193,6 @@ export default function App() {
             key="addition-bubbles"
             onBack={handleActivityBack}
             onSafeSpace={() => setScreen("safe-space")}
-            onComplete={handleActivityComplete}
             initialLevel={additionLevel}
           />
         )}
@@ -214,7 +202,6 @@ export default function App() {
             key="letter-explorer"
             onBack={handleActivityBack}
             onSafeSpace={() => setScreen("safe-space")}
-            onComplete={handleActivityComplete}
           />
         )}
 
