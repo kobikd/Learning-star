@@ -12,6 +12,7 @@ import type { IslandSubject } from "../components/ui/IslandButton";
 
 interface WorldMapScreenProps {
   onSelectMath:    () => void;
+  onSelectAddition: () => void;
   onSelectReading: () => void;
   onSafeSpace:     () => void;
   starCount?:      number;
@@ -250,6 +251,7 @@ function TreasureDecor() {
  */
 export function WorldMapScreen({
   onSelectMath,
+  onSelectAddition,
   onSelectReading,
   onSafeSpace,
   starCount = 0,
@@ -373,6 +375,16 @@ export function WorldMapScreen({
             activityCount={5}
             recommended={recommendedSubject === "math"}
             onClick={onSelectMath}
+          />
+
+          {/* Addition island */}
+          <IslandButton
+            subject="addition"
+            name="חִיבּוּר בּוּעוֹת"
+            icon="🫧"
+            activityCount={5}
+            recommended={recommendedSubject === "addition" as never}
+            onClick={onSelectAddition}
           />
 
           {/* Reading island */}

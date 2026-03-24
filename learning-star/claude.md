@@ -393,6 +393,30 @@ This includes:
 
 The skill enforces sensory-safe design rules critical for Gefen (dyspraxia, HFA) — no harsh transients, no sudden volume spikes, warm timbres only. Never design sounds for this app without it.
 
+## Math Game Creator
+
+**Always use the `/math-game-creator` skill when creating any new math activity or interactive math game for this app.**
+
+This includes:
+- New math activity components (like AdditionBubbles, CountingGarden, etc.)
+- Updating difficulty levels or CRA progression in existing activities
+- Designing new interaction patterns for math concepts
+- Planning scaffolding and errorless learning progressions
+
+The skill enforces the full pedagogical framework for Gefen (dyspraxia, HFA, mild ID):
+- Errorless learning — NEVER show negative feedback or "wrong" text
+- Hebrew RTL with full nikud on every text string
+- CRA progression (Concrete → Representational → Abstract)
+- Huge touch targets (80px+ for answer buttons)
+- Adaptive scaffolding: dim wrong options → verbal hint → full demo with dot counting
+- Stars only go up, streaks trigger butterfly celebration
+
+**When building a new math activity**, follow CountingGarden and AdditionBubbles as the reference patterns:
+- Props: `{ onBack, onSafeSpace, onComplete, initialLevel }`
+- Phase machine: `"instruction" | "answering" | "correct" | "wrong" | "demo"`
+- Hooks: `useAdaptive(skillId)`, `useRewardStore()`
+- Initial phase must be `"answering"` (not `"instruction"`) so buttons work on mount
+
 ## Development Rules
 
 1. **RTL first**: All CSS starts with direction: rtl. Use logical properties (margin-inline-start not margin-right).

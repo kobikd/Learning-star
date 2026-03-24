@@ -61,5 +61,9 @@ export const playTraceComplete    = () => play("trace_complete.wav");
 export const playPhaseTransition  = () => play("phase_transition.wav");
 export const playLetterComplete   = () => play("letter_complete.wav");
 
+
+// ─── Addition Bubbles ────────────────────────────────────────────────────────
+export const playBubblePop    = () => play("bloom.wav");       // reuse bloom as pop
+export const playBubbleMerge  = () => play("correct.wav");     // reuse correct as merge
 // Avatar clicks
 export const playAvatarSfx = (id: string) => play(`avatar_${id}.mp3`);

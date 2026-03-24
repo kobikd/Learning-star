@@ -10,10 +10,11 @@ import { BreakScreen, EndOfDay } from "./pages/BreakScreen";
 import { useRewardStore }     from "./stores/rewardStore";
 import { useCurriculum }      from "./hooks/useAdaptive";
 import { SafeSpace }           from "./pages/SafeSpace";
+import { AdditionBubbles }     from "./pages/activities/AdditionBubbles";
 import { playWelcomeChime }    from "./audio/welcomeChime";
 import "./index.css";
 
-type Screen = "welcome" | "world-map" | "math-activity" | "reading-activity" | "safe-space";
+type Screen = "welcome" | "world-map" | "math-activity" | "addition-activity" | "reading-activity" | "safe-space";
 
 // Break timer: random between 10 and 15 minutes (ms)
 function randomBreakDelay() {
@@ -47,6 +48,7 @@ export default function App() {
   // Curriculum engine — adaptive activity selection
   const {
     recommendedSubject,
+    nextActivity,
     getStartingLevel,
     startSession,
     finishSession,
@@ -89,6 +91,19 @@ export default function App() {
   function enterActivity(activityScreen: "math-activity" | "reading-activity") {
     const subject = activityScreen === "math-activity" ? "math" : "reading";
     startSession(subject);
+
+    // Route to the curriculum-recommended math activity
+    if (subject === "math" && nextActivity?.activityId === "addition-activity") {
+      if (!sessionActiveRef.current) {
+        sessionActiveRef.current          = true;
+        sessionStartRef.current           = Date.now();
+        starsAtSessionStartRef.current    = stars;
+        stickersAtSessionStartRef.current = stickersEarned.length;
+        startBreakTimer();
+      }
+      setScreen("addition-activity");
+      return;
+    }
 
     // Start break timer only on first activity in this session
     if (!sessionActiveRef.current) {
@@ -143,7 +158,8 @@ export default function App() {
   }
 
   // ── Adaptive starting levels ──────────────────────────────────────────────
-  const mathLevel = getStartingLevel("counting-garden");   // 3–10 flowers
+  const mathLevel = getStartingLevel("counting-garden");
+  const additionLevel = getStartingLevel("addition-activity");   // 3–10 flowers
 
   return (
     <>
@@ -163,6 +179,7 @@ export default function App() {
           <WorldMapScreen
             key="world-map"
             onSelectMath={() => enterActivity("math-activity")}
+            onSelectAddition={() => setScreen("addition-activity")}
             onSelectReading={() => enterActivity("reading-activity")}
             onSafeSpace={() => setScreen("safe-space")}
             onOpenAlbum={() => setShowAlbum(true)}
@@ -179,6 +196,16 @@ export default function App() {
             onSafeSpace={() => setScreen("safe-space")}
             onComplete={handleActivityComplete}
             initialLevel={mathLevel}
+          />
+        )}
+
+        {screen === "addition-activity" && (
+          <AdditionBubbles
+            key="addition-bubbles"
+            onBack={handleActivityBack}
+            onSafeSpace={() => setScreen("safe-space")}
+            onComplete={handleActivityComplete}
+            initialLevel={additionLevel}
           />
         )}
 

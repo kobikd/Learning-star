@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export type IslandSubject = "math" | "reading";
+export type IslandSubject = "math" | "addition" | "reading";
 
 interface IslandButtonProps {
   subject: IslandSubject;
@@ -30,6 +30,17 @@ const THEME = {
     shadow:     "0 12px 36px rgba(124,111,235,0.45)",
     shadowHover:"0 20px 48px rgba(124,111,235,0.55)",
     glow:       "0 0 0 6px rgba(124,111,235,0.20)",
+    sandTop:    "#E8D5A3",
+    sandBot:    "#D4B87A",
+    treeTrunk:  "#8B6340",
+  },
+  addition: {
+    bg:         "#FF8C69",
+    bgLight:    "#FFF0E8",
+    bgDark:     "#E06B48",
+    shadow:     "0 12px 36px rgba(255,140,105,0.45)",
+    shadowHover:"0 20px 48px rgba(255,140,105,0.55)",
+    glow:       "0 0 0 6px rgba(255,140,105,0.20)",
     sandTop:    "#E8D5A3",
     sandBot:    "#D4B87A",
     treeTrunk:  "#8B6340",
@@ -130,7 +141,7 @@ export function IslandButton({
       y: [0, -12, 0],
       transition: {
         repeat: Infinity,
-        duration: subject === "math" ? 3.2 : 4.0,
+        duration: subject === "math" ? 3.2 : subject === "addition" ? 3.6 : 4.0,
         ease: "easeInOut",
       },
     });
