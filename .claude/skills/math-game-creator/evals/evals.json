@@ -4,19 +4,19 @@
     {
       "id": 1,
       "prompt": "תעשי לי משחק של חיבור על קו מספרים עד 20",
-      "expected_output": "An interactive HTML game in Hebrew featuring a number line 0-20 where the child practices addition by clicking/tapping jumps on the line. Should include: RTL Hebrew interface, the hedgehog mascot (הקיפי), clean spacious layout, 6-8 practice items, visual timer, specific feedback, and multiple difficulty levels with fading prompts.",
+      "expected_output": "A structured game design blueprint (NOT an HTML file) that includes: learning objective for addition up to 20 on a number line, rationale for choosing number line as visual anchor, CRA progression plan (concrete objects -> representational dots/jumps -> abstract digits), interaction pattern selection (tap vs drag with reasoning), 3 scaffolding levels with hint fading plan, errorless feedback flow, session structure (5-7 min, 5-7 items), adaptive difficulty rules, and accessibility review for DCD+ASD+MID.",
       "files": []
     },
     {
       "id": 2,
       "prompt": "create a place value game for hundreds, tens and ones - make it fun with dragging blocks",
-      "expected_output": "An interactive HTML game in Hebrew for practicing place value (hundreds/tens/ones) using draggable base-10 blocks. Should include: visual base-10 representations (flats/rods/units), drag-and-drop interaction, digit alignment grid, RTL Hebrew, הקיפי mascot, graduated difficulty levels, and all DCD+ASD adaptations.",
+      "expected_output": "A structured game design blueprint that includes: learning objective for place value with base-10 blocks, rationale for choosing drag-and-drop with magnet snap (acknowledging DCD constraints), CRA progression from physical blocks to diagrams to digits, mechanic selection rationale (drag-to-zone with 150%+ hit area), scaffolding plan starting with 2 choices, feedback design with specific Hebrew encouragement phrases, session flow, and accessibility notes about motor demands of drag interaction.",
       "files": []
     },
     {
       "id": 3,
       "prompt": "בתי צריכה לתרגל בעיות מילוליות של חלק-חלק-שלם, תכין לה משחק",
-      "expected_output": "An interactive HTML game in Hebrew for practicing part-part-whole word problems using bar model diagrams. Should include: fixed schema cards (ביחד=+, נשאר=−), small vocabulary dictionary on screen, structured 3-step approach, visual bar model, RTL Hebrew, הקיפי mascot, and all DCD+ASD adaptations with errorless learning.",
+      "expected_output": "A structured game design blueprint that includes: learning objective for part-part-whole word problems, rationale for choosing bar model as visual anchor, schema-based problem solving approach, vocabulary card design (ביחד=+, נשאר=−), CRA stages showing how bar model bridges concrete to abstract, interaction pattern (tap-to-select with 2 choices initially), scaffolding with 3-step fixed card approach, Hebrew-specific language considerations (simple sentences, full nikud, one verb per operation), and how to handle the language comprehension challenges of word problems for ASD+MID.",
       "files": []
     }
   ]

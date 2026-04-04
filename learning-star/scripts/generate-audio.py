@@ -222,6 +222,15 @@ SFX_SPECS = [
     ("phase_transition.mp3",
      "A very soft single ascending tone gliding smoothly upward, gentle whoosh-chime, smooth activity phase transition sound, barely-there, non-startling, children's educational app.",
      0.7),
+
+    # ── WorldMap screen music ─────────────────────────────────────────────────────
+    ("worldmap_music_a.mp3",
+     "A gentle magical ambient loop for a children's app. Warm marimba melody in C major pentatonic at 92 BPM, soft steel drum accents, tropical island feel, gentle shimmering water texture. Music-box quality, warm wooden resonance, airy and floating. Soft rounded attack, very gentle dynamics, seamlessly loopable.",
+     22.0),
+
+    ("worldmap_music_b.mp3",
+     "A gentle dreamy ambient loop for a children's app. Soft music-box melody in C major pentatonic at 92 BPM, warm marimba counter-melody, gentle ocean wave undertone, bubbly water-droplet accents. Floating and serene, like waves at a magical island shore. Warm cottony texture, very soft dynamics, seamlessly loopable.",
+     22.0),
     ("letter_complete.mp3",
      "Four ascending warm marimba-chime tones rising to a high note with sparkle shimmer cloud, warm celebration for completing a full letter lesson, encouraging and magical, children's educational app.",
      2.0),

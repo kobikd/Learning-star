@@ -1,32 +1,31 @@
 /**
- * useWelcomeMusic
+ * useWorldMapMusic
  *
- * Plays welcome_music.mp3 in a seamless crossfade loop using two
- * HTMLAudioElement instances (A and B both point to the same file).
- * CROSSFADE_S seconds before track A ends, track B starts at volume 0
- * and fades in while A fades out — no silence gap at the loop point.
+ * Crossfades worldmap_music_a.mp3 ↔ worldmap_music_b.mp3 in a seamless loop.
+ * Starts automatically: plays muted immediately (always allowed by browsers),
+ * then unmutes instantly — on most browsers/PWAs this is inaudible. If the
+ * browser still blocks, unmutes on the user's very first touch.
  */
 import { useEffect, useRef, useState } from "react";
 
-const TRACK       = "/audio/sfx/welcome_music.mp3";
-const TARGET_VOL  = 0.55;
+const TRACKS      = ["/audio/sfx/worldmap_music_a.mp3", "/audio/sfx/worldmap_music_b.mp3"];
+const TARGET_VOL  = 0.45;
 const CROSSFADE_S = 3.5;
 const FADE_STEPS  = 40;
 
-export function useWelcomeMusic() {
-  const [on, setOn] = useState(true);
-
-  const aRef       = useRef<HTMLAudioElement | null>(null);
-  const bRef       = useRef<HTMLAudioElement | null>(null);
-  const activeRef  = useRef<0 | 1>(0);
-  const fadingRef  = useRef(false);
-  const onRef      = useRef(true);
-  const mountedRef = useRef(true);
+export function useWorldMapMusic() {
+  const [on, setOn]    = useState(true);
+  const aRef           = useRef<HTMLAudioElement | null>(null);
+  const bRef           = useRef<HTMLAudioElement | null>(null);
+  const activeRef      = useRef<0 | 1>(0);
+  const fadingRef      = useRef(false);
+  const onRef          = useRef(true);
+  const mountedRef     = useRef(true);
 
   function fadeTo(el: HTMLAudioElement, target: number, ms = 400) {
     const start = el.volume;
     const delta = (target - start) / FADE_STEPS;
-    let   step  = 0;
+    let step = 0;
     const iv = setInterval(() => {
       if (!mountedRef.current) { clearInterval(iv); return; }
       step++;
@@ -38,22 +37,20 @@ export function useWelcomeMusic() {
   function crossfade() {
     if (fadingRef.current || !mountedRef.current) return;
     fadingRef.current = true;
-
     const cur  = activeRef.current === 0 ? aRef.current! : bRef.current!;
     const next = activeRef.current === 0 ? bRef.current! : aRef.current!;
-
-    next.volume      = 0;
+    next.src = TRACKS[(activeRef.current + 1) % 2];
+    next.volume = 0;
     next.currentTime = 0;
     next.play().catch(() => {});
     if (onRef.current) fadeTo(next, TARGET_VOL);
     fadeTo(cur, 0);
-
     const onEnded = () => {
       cur.removeEventListener("ended", onEnded);
       cur.pause();
       cur.currentTime = 0;
       activeRef.current = activeRef.current === 0 ? 1 : 0;
-      fadingRef.current  = false;
+      fadingRef.current = false;
       attachTimeUpdate();
     };
     cur.addEventListener("ended", onEnded);
@@ -75,27 +72,31 @@ export function useWelcomeMusic() {
     mountedRef.current = true;
     onRef.current      = true;
 
-    const a = new Audio(TRACK);
-    const b = new Audio(TRACK);
+    const a = new Audio(TRACKS[0]);
+    const b = new Audio(TRACKS[1]);
     a.preload = "auto";
     b.preload = "auto";
     a.volume  = 0;
     b.volume  = 0;
-    aRef.current = a;
-    bRef.current = b;
+    aRef.current      = a;
+    bRef.current      = b;
     activeRef.current = 0;
-    fadingRef.current  = false;
+    fadingRef.current = false;
 
-    // Start muted (always allowed), unmute immediately for auto-start
+    // Strategy: start muted (always allowed), unmute immediately.
+    // Most browsers allow this on a PWA / after prior interaction.
+    // If unmute is also blocked, the pointerdown listener handles it.
     a.muted = true;
     a.play()
       .then(() => {
+        // Muted play succeeded — try unmuting right away
         a.muted  = false;
         a.volume = 0;
         fadeTo(a, TARGET_VOL, 1200);
         attachTimeUpdate();
       })
       .catch(() => {
+        // Completely blocked — wait for first gesture
         const onGesture = () => {
           a.muted  = false;
           a.volume = 0;
@@ -109,8 +110,9 @@ export function useWelcomeMusic() {
 
     return () => {
       mountedRef.current = false;
-      a.pause(); a.src = "";
-      b.pause(); b.src = "";
+      fadeTo(a, 0, 600);
+      fadeTo(b, 0, 600);
+      setTimeout(() => { a.pause(); a.src = ""; b.pause(); b.src = ""; }, 650);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

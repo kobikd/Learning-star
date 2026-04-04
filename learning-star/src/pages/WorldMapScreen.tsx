@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useWorldMapMusic } from "../hooks/useWorldMapMusic";
 import { useState, useCallback } from "react";
 import { OceanBackground }  from "../components/ui/OceanBackground";
 import { IslandButton }     from "../components/ui/IslandButton";
@@ -145,6 +146,7 @@ export function WorldMapScreen({
   recommendedSubject,
 }: WorldMapScreenProps) {
   const [catFunny, setCatFunny] = useState(false);
+  useWorldMapMusic();
 
   const handleCatClick = useCallback(() => {
     setCatFunny(true);

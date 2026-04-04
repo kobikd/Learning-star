@@ -1,186 +1,145 @@
 /**
  * useSafeSpaceMusic
  *
- * Plays safespace_music.mp3 and safespace_music_b.mp3 in a seamless crossfade
- * loop using the Web Audio API.
- *
- * How it works:
- *   - Each segment is ~22 s. CROSSFADE seconds before one ends, the next
- *     begins at volume 0 and ramps to full while the current one ramps to 0.
- *   - Segments alternate A → B → A → B … so the music feels ~44 s before
- *     any repetition is noticeable.
- *   - Master GainNode controls overall volume (toggle / fade-in on mount).
- *   - Autoplay strategy: try unmuted first; fall back to muted + first-gesture.
+ * Crossfades between safespace_music.mp3 → safespace_music_b.mp3 → A → B…
+ * using two HTMLAudioElement instances. When the active track is CROSSFADE_S
+ * seconds from its end, the next track starts fading in. When the active track
+ * ends, they swap roles. Reliable on mobile — no Web Audio API / AudioContext.
  */
 import { useEffect, useRef, useState } from "react";
 
-const CROSSFADE = 3.5;   // seconds of overlap between segments
-const TARGET_VOL = 0.5;
-const SEGMENTS = [
-  "/audio/sfx/safespace_music.mp3",
-  "/audio/sfx/safespace_music_b.mp3",
-];
+const TRACKS      = ["/audio/sfx/safespace_music.mp3", "/audio/sfx/safespace_music_b.mp3"];
+const TARGET_VOL  = 0.45;
+const CROSSFADE_S = 3.5;   // seconds before end to begin crossfade
+const FADE_STEPS  = 40;
 
 export function useSafeSpaceMusic() {
-  const [on, setOn]       = useState(true);
-  const ctxRef            = useRef<AudioContext | null>(null);
-  const masterRef         = useRef<GainNode | null>(null);
-  const buffersRef        = useRef<AudioBuffer[]>([]);
-  const scheduledRef      = useRef<AudioBufferSourceNode[]>([]);
-  const nextSegRef        = useRef(0);
-  const nextStartRef      = useRef(0);   // AudioContext time when next seg starts
-  const timerRef          = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const destroyedRef      = useRef(false);
+  const [on, setOn] = useState(true);
 
-  // ── Load all buffers ─────────────────────────────────────────────────────
-  async function loadBuffers(ctx: AudioContext): Promise<AudioBuffer[]> {
-    return Promise.all(
-      SEGMENTS.map(async (url) => {
-        const res = await fetch(url);
-        const ab  = await res.arrayBuffer();
-        return ctx.decodeAudioData(ab);
-      })
-    );
+  const aRef      = useRef<HTMLAudioElement | null>(null);
+  const bRef      = useRef<HTMLAudioElement | null>(null);
+  const activeRef = useRef<0 | 1>(0);   // which slot is currently playing lead
+  const fadingRef = useRef(false);       // crossfade in progress
+  const onRef     = useRef(true);        // mirror of `on` for use in callbacks
+  const mountedRef = useRef(true);
+
+  // ── Fade one element to a target volume over ~400ms ─────────────────────
+  function fadeTo(el: HTMLAudioElement, target: number) {
+    const start = el.volume;
+    const delta = (target - start) / FADE_STEPS;
+    let   step  = 0;
+    const iv = setInterval(() => {
+      if (!mountedRef.current) { clearInterval(iv); return; }
+      step++;
+      el.volume = Math.max(0, Math.min(1, start + delta * step));
+      if (step >= FADE_STEPS) clearInterval(iv);
+    }, 400 / FADE_STEPS);
   }
 
-  // ── Schedule one segment with fade-in and fade-out ───────────────────────
-  function scheduleSegment(
-    ctx:    AudioContext,
-    master: GainNode,
-    buf:    AudioBuffer,
-    when:   number,        // AudioContext time to start
-  ): AudioBufferSourceNode {
-    const src      = ctx.createBufferSource();
-    const segGain  = ctx.createGain();
-    src.buffer     = buf;
-    src.connect(segGain);
-    segGain.connect(master);
+  // ── Start crossfade: fade in `next`, it will become lead when `cur` ends ─
+  function crossfade() {
+    if (fadingRef.current || !mountedRef.current) return;
+    fadingRef.current = true;
 
-    // Fade in at start
-    segGain.gain.setValueAtTime(0, when);
-    segGain.gain.linearRampToValueAtTime(1, when + CROSSFADE);
+    const cur  = activeRef.current === 0 ? aRef.current! : bRef.current!;
+    const next = activeRef.current === 0 ? bRef.current! : aRef.current!;
+    const nextTrack = TRACKS[(activeRef.current + 1) % 2];
 
-    // Fade out at end
-    const fadeOutStart = when + buf.duration - CROSSFADE;
-    segGain.gain.setValueAtTime(1, fadeOutStart);
-    segGain.gain.linearRampToValueAtTime(0, when + buf.duration);
+    next.src    = nextTrack;
+    next.volume = 0;
+    next.currentTime = 0;
+    next.play().catch(() => {});
 
-    src.start(when);
-    scheduledRef.current.push(src);
-    return src;
+    if (onRef.current) fadeTo(next, TARGET_VOL);
+
+    // When `cur` ends, swap roles and schedule next crossfade
+    const onEnded = () => {
+      cur.removeEventListener("ended", onEnded);
+      cur.pause();
+      cur.currentTime = 0;
+      activeRef.current = activeRef.current === 0 ? 1 : 0;
+      fadingRef.current = false;
+      // Re-attach timeupdate to the new lead
+      attachTimeUpdate();
+    };
+    cur.addEventListener("ended", onEnded);
+
+    // Fade out current
+    fadeTo(cur, 0);
   }
 
-  // ── Continuously schedule next segment before current one ends ───────────
-  function scheduleNext() {
-    if (destroyedRef.current) return;
-    const ctx     = ctxRef.current;
-    const master  = masterRef.current;
-    const buffers = buffersRef.current;
-    if (!ctx || !master || buffers.length < 2) return;
+  // ── Watch timeupdate on the active (lead) track ──────────────────────────
+  function attachTimeUpdate() {
+    const lead = activeRef.current === 0 ? aRef.current! : bRef.current!;
 
-    const segIdx  = nextSegRef.current % SEGMENTS.length;
-    const buf     = buffers[segIdx];
-    const when    = nextStartRef.current;
-
-    scheduleSegment(ctx, master, buf, when);
-
-    // Advance: next segment starts CROSSFADE seconds before this one ends
-    nextStartRef.current = when + buf.duration - CROSSFADE;
-    nextSegRef.current++;
-
-    // Schedule the timer to queue the segment after that
-    const msUntilNextSchedule = (nextStartRef.current - ctx.currentTime - 1) * 1000;
-    timerRef.current = setTimeout(scheduleNext, Math.max(0, msUntilNextSchedule));
-  }
-
-  // ── Master fade helper ───────────────────────────────────────────────────
-  function masterFadeTo(target: number, secs: number) {
-    const ctx    = ctxRef.current;
-    const master = masterRef.current;
-    if (!ctx || !master) return;
-    const now = ctx.currentTime;
-    master.gain.cancelScheduledValues(now);
-    master.gain.setValueAtTime(master.gain.value, now);
-    master.gain.linearRampToValueAtTime(target, now + secs);
-  }
-
-  // ── Start everything ─────────────────────────────────────────────────────
-  async function start() {
-    if (destroyedRef.current) return;
-    const ctx    = ctxRef.current!;
-    const master = masterRef.current!;
-
-    try { await ctx.resume(); } catch { /* ignore */ }
-
-    if (buffersRef.current.length === 0) {
-      buffersRef.current = await loadBuffers(ctx);
-    }
-
-    // Start first segment immediately, schedule chain
-    nextStartRef.current = ctx.currentTime;
-    nextSegRef.current   = 0;
-    scheduleNext();  // schedules seg 0 at currentTime
-    scheduleNext();  // pre-schedules seg 1 right after
-
-    // Fade in master
-    master.gain.setValueAtTime(0, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(TARGET_VOL, ctx.currentTime + 2.5);
+    const onTime = () => {
+      if (!lead.duration || fadingRef.current) return;
+      const remaining = lead.duration - lead.currentTime;
+      if (remaining <= CROSSFADE_S) {
+        lead.removeEventListener("timeupdate", onTime);
+        crossfade();
+      }
+    };
+    lead.addEventListener("timeupdate", onTime);
   }
 
   // ── Mount ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    destroyedRef.current = false;
+    mountedRef.current = true;
+    onRef.current      = true;
 
-    const ctx    = new AudioContext();
-    const master = ctx.createGain();
-    master.gain.setValueAtTime(0, ctx.currentTime);
-    master.connect(ctx.destination);
-    ctxRef.current   = ctx;
-    masterRef.current = master;
+    const a = new Audio(TRACKS[0]);
+    const b = new Audio(TRACKS[1]);
+    a.preload = "auto";
+    b.preload = "auto";
+    a.volume  = 0;
+    b.volume  = 0;
+    aRef.current = a;
+    bRef.current = b;
+    activeRef.current = 0;
+    fadingRef.current  = false;
 
-    // Attempt 1: start immediately (works if AudioContext not suspended)
-    if (ctx.state === "running") {
-      start();
-    } else {
-      // Attempt 2: wait for first gesture to resume
-      function onGesture(e: PointerEvent) {
-        const t = e.target as HTMLElement | null;
-        if (t?.closest("[data-sound-toggle]")) return;
-        start();
-        document.removeEventListener("pointerdown", onGesture);
-      }
-      document.addEventListener("pointerdown", onGesture);
+    // Try unmuted autoplay; fall back to muted then unmute on first gesture
+    a.play()
+      .then(() => {
+        fadeTo(a, TARGET_VOL);
+        attachTimeUpdate();
+      })
+      .catch(() => {
+        a.muted = true;
+        a.play().catch(() => {});
 
-      // Try resume anyway — some browsers allow it
-      ctx.resume().then(() => {
-        if (ctx.state === "running") {
-          start();
+        const onGesture = (e: PointerEvent) => {
+          const t = e.target as HTMLElement | null;
+          if (t?.closest("[data-sound-toggle]")) return;
+          a.muted  = false;
+          a.volume = 0;
+          fadeTo(a, TARGET_VOL);
+          attachTimeUpdate();
           document.removeEventListener("pointerdown", onGesture);
-        }
-      }).catch(() => {});
-
-      return () => document.removeEventListener("pointerdown", onGesture);
-    }
+        };
+        document.addEventListener("pointerdown", onGesture);
+      });
 
     return () => {
-      destroyedRef.current = true;
-      if (timerRef.current) clearTimeout(timerRef.current);
-      masterFadeTo(0, 0.8);
-      setTimeout(() => {
-        scheduledRef.current.forEach(s => { try { s.stop(); } catch { /* ok */ } });
-        ctx.close();
-      }, 900);
+      mountedRef.current = false;
+      a.pause(); a.src = "";
+      b.pause(); b.src = "";
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Toggle ───────────────────────────────────────────────────────────────
   function toggle() {
+    onRef.current = !on;
+    const lead = activeRef.current === 0 ? aRef.current! : bRef.current!;
     if (on) {
-      masterFadeTo(0, 0.8);
+      fadeTo(lead, 0);
       setOn(false);
     } else {
-      masterFadeTo(TARGET_VOL, 1.0);
+      lead.muted = false;
+      if (lead.paused) lead.play().catch(() => {});
+      fadeTo(lead, TARGET_VOL);
       setOn(true);
     }
   }
