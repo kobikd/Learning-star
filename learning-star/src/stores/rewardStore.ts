@@ -3,31 +3,30 @@ import { persist } from 'zustand/middleware';
 import { STICKERS } from '../content/stickers';
 import type { StickerDefinition } from '../content/stickers';
 
-// ─── State shape ──────────────────────────────────────────────────────────────
-
 export interface RewardState {
-  // Persisted
-  stars:          number;
-  streak:         number;       // current correct-answer streak (cross-activity)
-  stickersEarned: string[];     // ordered list of earned sticker ids
+  stars:             number;
+  streak:            number;
+  stickersEarned:    string[];
+  completedGames:    string[];   // routes finished at least once, e.g. ['/counting', '/addition']
+  islandTreasures:   string[];   // subject names whose treasure is unlocked, e.g. ['math']
 
-  // Actions — can return values from Zustand actions
-  recordCorrect:    () => { streakBonus: boolean };
-  recordWrong:      () => void;
-  earnNextSticker:  () => StickerDefinition | null;
-  resetProgress:    () => void;  // dev-only reset
+  recordCorrect:      () => { streakBonus: boolean };
+  recordWrong:        () => void;
+  earnNextSticker:    () => StickerDefinition | null;
+  markGameCompleted:  (route: string) => void;
+  unlockTreasure:     (subject: string) => void;
+  resetProgress:      () => void;
 }
-
-// ─── Store ────────────────────────────────────────────────────────────────────
 
 export const useRewardStore = create<RewardState>()(
   persist(
     (set, get) => ({
-      stars:          0,
-      streak:         0,
-      stickersEarned: [],
+      stars:           0,
+      streak:          0,
+      stickersEarned:  [],
+      completedGames:  [],
+      islandTreasures: [],
 
-      // Correct answer: +1 star, track streak, +3 bonus on every 3rd
       recordCorrect: () => {
         const newStreak   = get().streak + 1;
         const streakBonus = newStreak % 3 === 0;
@@ -38,10 +37,8 @@ export const useRewardStore = create<RewardState>()(
         return { streakBonus };
       },
 
-      // Wrong answer: reset streak, stars never decrease
       recordWrong: () => set({ streak: 0 }),
 
-      // Award the next unearned sticker in sequence
       earnNextSticker: () => {
         const earned = get().stickersEarned;
         const next   = STICKERS.find(s => !earned.includes(s.id)) ?? null;
@@ -50,7 +47,27 @@ export const useRewardStore = create<RewardState>()(
         return next;
       },
 
-      resetProgress: () => set({ stars: 0, streak: 0, stickersEarned: [] }),
+      markGameCompleted: (route: string) => {
+        const current = get().completedGames;
+        if (!current.includes(route)) {
+          set({ completedGames: [...current, route] });
+        }
+      },
+
+      unlockTreasure: (subject: string) => {
+        const current = get().islandTreasures;
+        if (!current.includes(subject)) {
+          set(s => ({
+            islandTreasures: [...s.islandTreasures, subject],
+            stars: s.stars + 5,
+          }));
+        }
+      },
+
+      resetProgress: () => set({
+        stars: 0, streak: 0, stickersEarned: [],
+        completedGames: [], islandTreasures: [],
+      }),
     }),
     { name: 'gefen-learning-star-v1' }
   )
