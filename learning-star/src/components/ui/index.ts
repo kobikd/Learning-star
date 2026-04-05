@@ -11,8 +11,6 @@ export { OceanBackground } from "./OceanBackground";
 export { CatCharacter }    from "./CatCharacter";
 export type { CatPose }    from "./CatCharacter";
 
-export { IslandButton }    from "./IslandButton";
-export type { IslandSubject } from "./IslandButton";
 
 export { VisualSchedule }  from "./VisualSchedule";
 export type { ScheduleItem, ScheduleItemStatus } from "./VisualSchedule";

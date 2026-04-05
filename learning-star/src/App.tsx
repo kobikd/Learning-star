@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { WelcomeScreen }      from "./pages/WelcomeScreen";
 import { WorldMapScreen }     from "./pages/WorldMapScreen";
 import { CountingGarden }     from "./pages/activities/CountingGarden";
@@ -11,10 +12,10 @@ import { useRewardStore }     from "./stores/rewardStore";
 import { useCurriculum }      from "./hooks/useAdaptive";
 import { SafeSpace }           from "./pages/SafeSpace";
 import { AdditionBubbles }     from "./pages/activities/AdditionBubbles";
+import { Gafbon }               from "./pages/activities/Gafbon";
+import { OceanSubtraction }     from "./pages/activities/OceanSubtraction";
 import { playWelcomeChime }    from "./audio/welcomeChime";
 import "./index.css";
-
-type Screen = "welcome" | "world-map" | "math-activity" | "addition-activity" | "reading-activity" | "safe-space";
 
 // Break timer: random between 10 and 15 minutes (ms)
 function randomBreakDelay() {
@@ -24,7 +25,9 @@ function randomBreakDelay() {
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [screen,       setScreen]       = useState<Screen>("welcome");
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [showAlbum,    setShowAlbum]    = useState(false);
   const [showBreak,    setShowBreak]    = useState(false);
   const [showEndOfDay, setShowEndOfDay] = useState(false);
@@ -32,7 +35,7 @@ export default function App() {
     ReturnType<ReturnType<typeof useRewardStore.getState>["earnNextSticker"]>
   >(null);
 
-  // ── Welcome chime — plays on first user gesture (browsers block audio before it) ──
+  // ── Welcome chime — plays on first user gesture ──
   useEffect(() => {
     const handler = () => {
       playWelcomeChime();
@@ -42,13 +45,11 @@ export default function App() {
     return () => document.removeEventListener("pointerdown", handler);
   }, []);
 
-  // Gamification (stars, stickers) — Zustand with localStorage persistence
-  const { stars, stickersEarned } = useRewardStore();
+  // Gamification
+  const { stars, stickersEarned, markGameCompleted } = useRewardStore();
 
-  // Curriculum engine — adaptive activity selection
+  // Curriculum engine
   const {
-    recommendedSubject,
-    nextActivity,
     getStartingLevel,
     startSession,
     finishSession,
@@ -56,14 +57,14 @@ export default function App() {
   } = useCurriculum();
 
   // ── Session tracking for BreakScreen ────────────────────────────────────
-  const sessionActiveRef         = useRef(false);
-  const sessionStartRef          = useRef<number>(Date.now());
-  const starsAtSessionStartRef   = useRef(stars);
+  const sessionActiveRef          = useRef(false);
+  const sessionStartRef           = useRef<number>(Date.now());
+  const starsAtSessionStartRef    = useRef(stars);
   const stickersAtSessionStartRef = useRef(stickersEarned.length);
-  const breakTimerRef            = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const breakTimerRef             = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function startBreakTimer() {
-    if (breakTimerRef.current) return;           // already running
+    if (breakTimerRef.current) return;
     breakTimerRef.current = setTimeout(() => {
       setShowBreak(true);
     }, randomBreakDelay());
@@ -76,7 +77,6 @@ export default function App() {
     }
   }
 
-  // Clear timer on unmount
   useEffect(() => () => clearBreakTimer(), []);
 
   // ── Derived session stats ────────────────────────────────────────────────
@@ -87,50 +87,38 @@ export default function App() {
     Math.round((Date.now() - sessionStartRef.current) / 60_000)
   );
 
-  // ── Navigate to an activity ──────────────────────────────────────────────
-  function enterActivity(activityScreen: "math-activity" | "reading-activity") {
-    const subject = activityScreen === "math-activity" ? "math" : "reading";
-    startSession(subject);
-
-    // Route to the curriculum-recommended math activity
-    if (subject === "math" && nextActivity?.activityId === "addition-activity") {
-      if (!sessionActiveRef.current) {
-        sessionActiveRef.current          = true;
-        sessionStartRef.current           = Date.now();
-        starsAtSessionStartRef.current    = stars;
-        stickersAtSessionStartRef.current = stickersEarned.length;
-        startBreakTimer();
-      }
-      setScreen("addition-activity");
-      return;
-    }
-
-    // Start break timer only on first activity in this session
+  // ── Start session tracking ───────────────────────────────────────────────
+  function ensureSession() {
     if (!sessionActiveRef.current) {
-      sessionActiveRef.current         = true;
-      sessionStartRef.current          = Date.now();
-      starsAtSessionStartRef.current   = stars;
+      sessionActiveRef.current          = true;
+      sessionStartRef.current           = Date.now();
+      starsAtSessionStartRef.current    = stars;
       stickersAtSessionStartRef.current = stickersEarned.length;
       startBreakTimer();
     }
-
-    setScreen(activityScreen);
   }
 
+  // ── Navigate to an activity ──────────────────────────────────────────────
+  function enterActivity(route: string, subject: "math" | "reading") {
+    startSession(subject);
+    ensureSession();
+    navigate(route);
+  }
 
-  // ── Back pressed inside activity (partial session) ────────────────────────
+  // ── Back pressed inside activity ──────────────────────────────────────────
   function handleActivityBack() {
+    markGameCompleted(location.pathname);   // record which game was finished
     finishSession();
     refreshCurriculum();
-    setScreen("world-map");
+    navigate("/map");
   }
 
   // ── Break screen handlers ────────────────────────────────────────────────
   function handleBreakContinue() {
     setShowBreak(false);
     clearBreakTimer();
-    startBreakTimer();          // restart timer for next break
-    setScreen("world-map");
+    startBreakTimer();
+    navigate("/map");
   }
 
   function handleBreakFinish() {
@@ -144,74 +132,101 @@ export default function App() {
     setShowEndOfDay(false);
     starsAtSessionStartRef.current    = stars;
     stickersAtSessionStartRef.current = stickersEarned.length;
-    setScreen("welcome");
+    navigate("/");
   }
 
   // ── Adaptive starting levels ──────────────────────────────────────────────
-  const mathLevel = getStartingLevel("counting-garden");
-  const additionLevel = getStartingLevel("addition-activity");   // 3–10 flowers
+  const mathLevel     = getStartingLevel("counting-garden");
+  const additionLevel = getStartingLevel("addition-activity");
+  const gafbonLevel   = getStartingLevel("gafbon");
+  const oceanSubLevel = getStartingLevel("sub_objects");
 
   return (
     <>
       <AnimatePresence mode="wait">
+        <motion.div key={location.pathname} style={{ width: "100%" }}>
+          <Routes location={location}>
 
-        {screen === "welcome" && (
-          <motion.div key="welcome" style={{ width: "100%" }}>
-            <WelcomeScreen
-              onNavigate={() => setScreen("world-map")}
-              onSafeSpace={() => setScreen("safe-space")}
-              starCount={stars}
-            />
-          </motion.div>
-        )}
+            <Route path="/" element={
+              <WelcomeScreen
+                onNavigate={() => navigate("/map")}
+                onSafeSpace={() => navigate("/safe-space")}
+                starCount={stars}
+              />
+            } />
 
-        {screen === "world-map" && (
-          <WorldMapScreen
-            key="world-map"
-            onSelectMath={() => enterActivity("math-activity")}
-            onSelectAddition={() => setScreen("addition-activity")}
-            onSelectReading={() => enterActivity("reading-activity")}
-            onSafeSpace={() => setScreen("safe-space")}
-            onOpenAlbum={() => setShowAlbum(true)}
-            starCount={stars}
-            stickerCount={stickersEarned.length}
-            recommendedSubject={recommendedSubject}
-          />
-        )}
+            <Route path="/map" element={
+              <WorldMapScreen
+                onSelectGame={(route) => {
+                  const subject: "math" | "reading" =
+                    route === "/reading" ? "reading" : "math";
+                  enterActivity(route, subject);
+                }}
+                onSafeSpace={() => navigate("/safe-space")}
+                onOpenAlbum={() => setShowAlbum(true)}
+                starCount={stars}
+                stickerCount={stickersEarned.length}
+              />
+            } />
 
-        {screen === "math-activity" && (
-          <CountingGarden
-            key="counting-garden"
-            onBack={handleActivityBack}
-            onSafeSpace={() => setScreen("safe-space")}
-            initialLevel={mathLevel}
-          />
-        )}
+            <Route path="/counting" element={
+              <CountingGarden
+                onBack={handleActivityBack}
+                onSafeSpace={() => navigate("/safe-space")}
+                initialLevel={mathLevel}
+              />
+            } />
 
-        {screen === "addition-activity" && (
-          <AdditionBubbles
-            key="addition-bubbles"
-            onBack={handleActivityBack}
-            onSafeSpace={() => setScreen("safe-space")}
-            initialLevel={additionLevel}
-          />
-        )}
+            <Route path="/addition" element={
+              <AdditionBubbles
+                onBack={handleActivityBack}
+                onSafeSpace={() => navigate("/safe-space")}
+                initialLevel={additionLevel}
+              />
+            } />
 
-        {screen === "reading-activity" && (
-          <LetterExplorer
-            key="letter-explorer"
-            onBack={handleActivityBack}
-            onSafeSpace={() => setScreen("safe-space")}
-          />
-        )}
+            <Route path="/gafbon" element={
+              <Gafbon
+                onBack={handleActivityBack}
+                onSafeSpace={() => navigate("/safe-space")}
+                onComplete={handleActivityBack}
+                initialLevel={gafbonLevel}
+              />
+            } />
 
-        {screen === "safe-space" && (
-          <SafeSpace
-            key="safe-space"
-            onBack={handleActivityBack}
-          />
-        )}
+            <Route path="/subtraction" element={
+              <OceanSubtraction
+                onBack={handleActivityBack}
+                onSafeSpace={() => navigate("/safe-space")}
+                onComplete={handleActivityBack}
+                initialLevel={oceanSubLevel}
+              />
+            } />
 
+            <Route path="/reading" element={
+              <LetterExplorer
+                onBack={handleActivityBack}
+                onSafeSpace={() => navigate("/safe-space")}
+              />
+            } />
+
+            <Route path="/safe-space" element={
+              <SafeSpace
+                onBack={() => navigate("/map")}
+              />
+            } />
+
+            {/* Fallback — redirect unknown paths to welcome */}
+            <Route path="*" element={
+              <WelcomeScreen
+                onNavigate={() => navigate("/map")}
+                onSafeSpace={() => navigate("/safe-space")}
+                starCount={stars}
+              />
+            } />
+
+          </Routes>
+        </motion.div>
       </AnimatePresence>
 
       {/* ── Sticker album (any screen) ── */}
@@ -221,7 +236,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* ── Sticker award (after activity completes) ── */}
+      {/* ── Sticker award ── */}
       <AnimatePresence>
         {awardSticker && (
           <StickerAward
@@ -232,7 +247,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* ── Break screen (auto after 10–15 min) ── */}
+      {/* ── Break screen ── */}
       <AnimatePresence>
         {showBreak && (
           <BreakScreen
