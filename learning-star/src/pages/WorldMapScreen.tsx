@@ -116,12 +116,12 @@ function ParchmentMap({
         {/* Island label */}
         <text x="590" y="204"
               textAnchor="middle" fontFamily="'Assistant','Rubik',sans-serif"
-              fontSize="17" fontWeight="700" fill="#2D3748" direction="rtl">
+              fontSize="17" fontWeight="700" fill="#2D3748" direction="rtl" unicodeBidi="embed">
           🏝️ אִי הַמִּסְפָּרִים
         </text>
         <text x="590" y="224"
               textAnchor="middle" fontFamily="'Assistant','Rubik',sans-serif"
-              fontSize="12" fill="#4A5568">
+              fontSize="12" fill="#4A5568" direction="rtl" unicodeBidi="embed">
           4 מִשְׂגָּקִים{mathTreasureOpen ? ' ✅' : ''}
         </text>
 
@@ -134,7 +134,7 @@ function ParchmentMap({
             <rect x="525" y="68" width="130" height="18" rx="9" fill="#FFD700"/>
             <text x="590" y="81"
                   textAnchor="middle" fontSize="11" fontWeight="700"
-                  fontFamily="'Assistant','Rubik',sans-serif" fill="#2D3748">
+                  fontFamily="'Assistant','Rubik',sans-serif" fill="#2D3748" direction="rtl" unicodeBidi="embed">
               ✨ מוּמְלָץ עַכְשָׁו
             </text>
           </motion.g>
@@ -183,12 +183,12 @@ function ParchmentMap({
         {/* Island label */}
         <text x="178" y="338"
               textAnchor="middle" fontFamily="'Assistant','Rubik',sans-serif"
-              fontSize="17" fontWeight="700" fill="#2D3748" direction="rtl">
+              fontSize="17" fontWeight="700" fill="#2D3748" direction="rtl" unicodeBidi="embed">
           📚 אִי הַסִּפּוּרִים
         </text>
         <text x="178" y="358"
               textAnchor="middle" fontFamily="'Assistant','Rubik',sans-serif"
-              fontSize="12" fill="#4A5568">
+              fontSize="12" fill="#4A5568" direction="rtl" unicodeBidi="embed">
           1 מִשְׂגָּקִים{readingTreasureOpen ? ' ✅' : ''}
         </text>
 
@@ -200,7 +200,7 @@ function ParchmentMap({
             <rect x="112" y="218" width="132" height="18" rx="9" fill="#FFD700"/>
             <text x="178" y="231"
                   textAnchor="middle" fontSize="11" fontWeight="700"
-                  fontFamily="'Assistant','Rubik',sans-serif" fill="#2D3748">
+                  fontFamily="'Assistant','Rubik',sans-serif" fill="#2D3748" direction="rtl" unicodeBidi="embed">
               ✨ מוּמְלָץ עַכְשָׁו
             </text>
           </motion.g>

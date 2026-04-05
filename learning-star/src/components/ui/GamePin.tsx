@@ -72,6 +72,7 @@ export function GamePin({ game, x, y, onClick }: GamePinProps) {
           fontFamily="var(--font-primary)"
           fill={game.state === 'locked' ? '#999' : '#2D3748'}
           direction="rtl"
+          unicodeBidi="embed"
         >
           {game.name}
         </text>
