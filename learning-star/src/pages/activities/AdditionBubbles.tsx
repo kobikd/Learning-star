@@ -4,10 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Bubble, BubbleBurst }       from "../../components/activities/Bubble";
 import { Butterfly, StreakBanner }   from "../../components/activities/Butterfly";
 import { CatCharacter }              from "../../components/ui/CatCharacter";
-import { SpeakButton }               from "../../components/ui/SpeakButton";
 import { StarCounter }               from "../../components/ui/StarCounter";
 import { SafeSpaceButton }           from "../../components/ui/SafeSpaceButton";
-import { HEBREW_NUMBERS, speak }     from "../../utils/speak";
 import {
   playCorrect, playStreakBonus, playTryAgain,
   playLevelUp, playDemoPing, playButtonTap,
@@ -15,6 +13,7 @@ import {
 } from "../../audio/sfxPlayer";
 import { useRewardStore }            from "../../stores/rewardStore";
 import type { CatPose }              from "../../components/ui/CatCharacter";
+import { HEBREW_NUMBERS } from "../../utils/speak";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,6 +24,7 @@ interface AdditionBubblesProps {
   onBack:       () => void;
   onSafeSpace:  () => void;
   initialLevel?: number;     // 1–5, default 1
+  onCorrectAnswer?: () => void;
 }
 
 interface Question {
@@ -198,6 +198,7 @@ export function AdditionBubbles({
   onBack,
   onSafeSpace,
   initialLevel = 1,
+  onCorrectAnswer,
 }: AdditionBubblesProps) {
   const { stars, recordCorrect, recordWrong } = useRewardStore();
 
@@ -245,7 +246,6 @@ export function AdditionBubbles({
     setCatPose("idle");
 
     const inst = buildInstruction(q.a, q.b);
-    setTimeout(() => speak(inst, "instruction"), 300);
     setTimeout(() => setPhase("answering"), 1200);
   }, [clearDemo]);
 
@@ -261,7 +261,6 @@ export function AdditionBubbles({
       setPhase("correct");
       playCorrect();
       playBubblePop();
-      speak("!כל הכבוד", "encouragement");
       setPoppedAnswer(selected);
       setShowBurst(true);
 
@@ -270,13 +269,12 @@ export function AdditionBubbles({
       consecutiveWrongRef.current = 0;
 
       const { streakBonus } = recordCorrect();
+      onCorrectAnswer?.();
       if (streakBonus) {
         playStreakBonus();
         setButterflyTrig(t => t + 1);
         setShowBonus(true);
         setTimeout(() => setShowBonus(false), 2400);
-        setTimeout(() => speak("!שלוש ברצף — מדהים", "encouragement"), 600);
-
       }
 
       setCatPose("wave");
@@ -313,11 +311,9 @@ export function AdditionBubbles({
       setCatPose("point-right");
 
       if (newAttempts === 1) {
-        speak("נְנַסֶּה יַחַד!", "encouragement");
         setCatMessage("אֲנִי כָּאן אִתָּךְ! 💛");
       } else if (newAttempts === 2) {
         const answerText = hebrewNum(question.answer);
-        speak(`${hebrewNum(question.a)} וְעוֹד ${hebrewNum(question.b)} זֶה ${answerText}. נְנַסֶּה שׁוּב!`, "instruction");
         setCatMessage(`${hebrewNum(question.a)} + ${hebrewNum(question.b)} = ${answerText}`);
       } else {
         // Will run demo
@@ -337,7 +333,6 @@ export function AdditionBubbles({
   // ── Demo: count dots step by step ────────────────────────────────────────
   const runDemo = useCallback(() => {
     clearDemo();
-    speak("בּוֹאִי נִסְפּוֹר יַחַד!", "instruction");
     setCatMessage("בּוֹאִי נִסְפּוֹר יַחַד!");
     setCatPose("idle");
 
@@ -348,7 +343,6 @@ export function AdditionBubbles({
       const t = setTimeout(() => {
         setDemoDotCountA(i);
         playDemoPing();
-        speak(hebrewNum(i), "number");
       }, 500 + (i - 1) * 800);
       demoTimeouts.current.push(t);
     }
@@ -359,7 +353,6 @@ export function AdditionBubbles({
       const t = setTimeout(() => {
         setDemoDotCountB(i);
         playDemoPing();
-        speak(hebrewNum(a + i), "number");
       }, bStart + (i - 1) * 800);
       demoTimeouts.current.push(t);
     }
@@ -368,7 +361,6 @@ export function AdditionBubbles({
     const highlightTime = bStart + b * 800 + 400;
     const t1 = setTimeout(() => {
       setAutoHighlight(answer);
-      speak(`${hebrewNum(answer)}!`, "number");
       setCatMessage(`${hebrewNum(answer)}!`);
       setCatPose("point-right");
     }, highlightTime);
@@ -382,13 +374,12 @@ export function AdditionBubbles({
   }, [question, clearDemo, handleAnswer]);
 
   // ── Cleanup ──────────────────────────────────────────────────────────────
-  useEffect(() => () => { clearDemo(); window.speechSynthesis?.cancel(); }, [clearDemo]);
+  useEffect(() => () => { clearDemo(); stopSpeech(); }, [clearDemo]);
 
   // ── Speak instruction on new question ────────────────────────────────────
   useEffect(() => {
     const inst = buildInstruction(question.a, question.b);
-    const t = setTimeout(() => speak(inst, "instruction"), 500);
-    return () => clearTimeout(t);
+    return () => {};
   }, [question.a, question.b]);
 
   // ── Derived state ────────────────────────────────────────────────────────
@@ -475,7 +466,6 @@ export function AdditionBubbles({
             maxWidth: "90%",
           }}
         >
-          <SpeakButton text={instruction} iconOnly rate={0.78} />
           <p
             dir="rtl" lang="he"
             style={{

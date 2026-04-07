@@ -6,10 +6,8 @@ import { Flower, BloomBurst }        from "../../components/activities/Flower";
 import { NumberRow }                 from "../../components/activities/NumberRow";
 import { Butterfly, StreakBanner }   from "../../components/activities/Butterfly";
 import { CatCharacter }              from "../../components/ui/CatCharacter";
-import { SpeakButton }               from "../../components/ui/SpeakButton";
 import { StarCounter }               from "../../components/ui/StarCounter";
 import { SafeSpaceButton }           from "../../components/ui/SafeSpaceButton";
-import { HEBREW_NUMBERS, speak }     from "../../utils/speak";
 import {
   playFlowerTap, playCorrect, playStreakBonus,
   playTryAgain, playLevelUp, playBloom, playDemoPing, playButtonTap,
@@ -17,6 +15,7 @@ import {
 import { useRewardStore }            from "../../stores/rewardStore";
 import type { ScaffoldLevel }        from "../../components/activities/NumberRow";
 import type { CatPose }              from "../../components/ui/CatCharacter";
+import { HEBREW_NUMBERS } from "../../utils/speak";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,6 +25,7 @@ interface CountingGardenProps {
   onBack:       () => void;
   onSafeSpace:  () => void;
   onComplete?:  () => void;   // triggered on first streak-of-3 (for sticker award)
+  onCorrectAnswer?: () => void;
   initialLevel?: number;      // flower count 3–10, default 3
 }
 
@@ -133,6 +133,7 @@ export function CountingGarden({
   onSafeSpace,
   onComplete,
   initialLevel = 3,
+  onCorrectAnswer,
 }: CountingGardenProps) {
   const { stars, recordCorrect, recordWrong } = useRewardStore();
 
@@ -169,7 +170,6 @@ export function CountingGarden({
     setTapOrders(prev => { const a = [...prev]; a[index] = order; return a; });
     setNextTapNum(n => n + 1);
     playFlowerTap(order);
-    speak(HEBREW_NUMBERS[order] ?? String(order), "number");
   }, [phase, tapOrders, nextTapNum]);
 
   // ── Handle answer selection ───────────────────────────────────────────────
@@ -181,19 +181,17 @@ export function CountingGarden({
       clearDemo();
       setPhase("correct");
       playCorrect();
-      speak("!כל הכבוד", "encouragement");
       setShowBloom(true);
       playBloom();
 
       // Record in store — handles star counting + streak bonus
       const { streakBonus } = recordCorrect();
+      onCorrectAnswer?.();
       if (streakBonus) {
         playStreakBonus();
         setButterflyTrig(t => t + 1);
         setShowBonus(true);
         setTimeout(() => setShowBonus(false), 2400);
-        setTimeout(() => speak("!שלוש ברצף — מדהים", "encouragement"), 600);
-
         // Award sticker once per session on first streak-of-3
         if (!stickerTriggered.current) {
           stickerTriggered.current = true;
@@ -218,7 +216,6 @@ export function CountingGarden({
         setNextTapNum(1);
         setPhase("counting");
         setCatPose("idle");
-        speak(INSTRUCTION, "instruction");
       }, 2800);
 
     } else {
@@ -232,11 +229,9 @@ export function CountingGarden({
       setCatPose("point-right");
 
       if (newAttempts === 1) {
-        speak("נְנַסֶּה יַחַד!", "encouragement");
         setCatMessage("אֲנִי כָּאן אִתָּךְ! 💛");
       } else if (newAttempts === 2) {
         const answer = HEBREW_NUMBERS[flowerCount] ?? String(flowerCount);
-        speak(`יֵשׁ כָּאן ${answer} פְּרָחִים. נְנַסֶּה שׁוּב יַחַד!`, "instruction");
         setCatMessage(`יֵשׁ ${answer} פְּרָחִים`);
       } else {
         runDemo();
@@ -249,7 +244,6 @@ export function CountingGarden({
   // ── Automatic demonstration ──────────────────────────────────────────────
   const runDemo = useCallback(() => {
     clearDemo();
-    speak("בּוֹאִי נִסְפּוֹר יַחַד!", "instruction");
     setCatMessage("בּוֹאִי נִסְפּוֹר יַחַד!");
     setCatPose("idle");
 
@@ -263,7 +257,6 @@ export function CountingGarden({
         setTapOrders(prev => { const a = [...prev]; a[i] = i + 1; return a; });
         setNextTapNum(i + 2);
         playDemoPing();
-        speak(HEBREW_NUMBERS[i + 1] ?? String(i + 1), "number");
       }, 600 + i * 900);
       demoTimeouts.current.push(t);
     }
@@ -272,7 +265,6 @@ export function CountingGarden({
     const t1 = setTimeout(() => {
       setDemoStep(-1);
       setAutoHighlight(flowerCount);
-      speak(HEBREW_NUMBERS[flowerCount] ?? String(flowerCount), "number");
       setCatMessage(`${HEBREW_NUMBERS[flowerCount]}!`);
       setCatPose("point-right");
     }, totalDelay);
@@ -285,11 +277,10 @@ export function CountingGarden({
     demoTimeouts.current.push(t1, t2);
   }, [flowerCount, clearDemo, handleAnswer]);
 
-  useEffect(() => () => { clearDemo(); window.speechSynthesis?.cancel(); }, [clearDemo]);
+  useEffect(() => () => { clearDemo(); stopSpeech(); }, [clearDemo]);
 
   useEffect(() => {
-    const t = setTimeout(() => speak(INSTRUCTION, "instruction"), 500);
-    return () => clearTimeout(t);
+    return () => {};
   }, [flowerCount]);
 
   const scaffoldLevel  = phase === "demo" ? 3 : wrongAttempts;
@@ -381,7 +372,6 @@ export function CountingGarden({
             maxWidth: "90%",
           }}
         >
-          <SpeakButton text={INSTRUCTION} iconOnly rate={0.78} />
           <p
             dir="rtl" lang="he"
             style={{

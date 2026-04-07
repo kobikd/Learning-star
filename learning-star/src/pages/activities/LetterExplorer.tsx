@@ -4,10 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { TracingDots }       from "../../components/activities/TracingDots";
 import { CatCharacter }      from "../../components/ui/CatCharacter";
 import { SafeSpaceButton }   from "../../components/ui/SafeSpaceButton";
-import { SpeakButton }       from "../../components/ui/SpeakButton";
 import { StarCounter }       from "../../components/ui/StarCounter";
 import { LETTERS }           from "../../content/letters";
-import { speak }             from "../../utils/speak";
 import {
   playLetterReveal, playLetterTap, playCorrectChoice, playWrongChoice,
   playTraceComplete, playPhaseTransition, playLetterComplete,
@@ -22,6 +20,7 @@ interface LetterExplorerProps {
   onBack:       () => void;
   onSafeSpace:  () => void;
   onComplete?:  () => void;  // triggered when all letters completed
+  onCorrectAnswer?: () => void;
 }
 
 // ─── Phase step indicator ─────────────────────────────────────────────────────
@@ -142,8 +141,7 @@ function PhaseSeeLetter({
 
   useEffect(() => {
     playLetterReveal();
-    const t = setTimeout(() => speak(`הָאוֹת ${letter.nameTTS}`, "letter"), 450);
-    return () => clearTimeout(t);
+    return () => {};
   }, [letter]);
 
   return (
@@ -240,11 +238,6 @@ function PhaseSeeLetter({
             {letter.exampleMeaning}
           </span>
         </div>
-        <SpeakButton
-          text={`${letter.nameTTS} — ${letter.exampleWordTTS}`}
-          iconOnly
-          rate={0.78}
-        />
       </motion.div>
 
       {/* Phoneme hint */}
@@ -318,8 +311,7 @@ function PhaseHear({
 
   useEffect(() => {
     playPhaseTransition();
-    const t = setTimeout(() => speak(`מִי הָאוֹת ${letter.nameTTS}? לַחְצִי עָלֶיהָ!`, "instruction"), 400);
-    return () => clearTimeout(t);
+    return () => {};
   }, [letter]);
 
   const handleTap = useCallback((char: string) => {
@@ -327,13 +319,11 @@ function PhaseHear({
     if (char === letter.char) {
       setSelected(char);
       playCorrectChoice();
-      speak("!נִפְלָא", "encouragement");
       setTimeout(onNext, 1400);
     } else {
       setWrong(char);
       playWrongChoice();
       playWrongChoice();
-      speak("נְנַסֶּה יַחַד!", "encouragement");
       setTimeout(() => setWrong(null), 600);
     }
   }, [selected, letter, onNext]);
@@ -357,10 +347,6 @@ function PhaseHear({
         borderRadius: "var(--radius-lg)", padding: "0.9rem 1.4rem",
         boxShadow: "var(--shadow-sm)", direction: "rtl",
       }}>
-        <SpeakButton
-          text={`מִי הָאוֹת ${letter.nameTTS}? לַחְצִי עָלֶיהָ!`}
-          iconOnly rate={0.78}
-        />
         <p lang="he" dir="rtl" style={{
           margin: 0, fontFamily: "var(--font-primary)",
           fontSize: "var(--text-instruction)", fontWeight: "var(--font-semibold)",
@@ -499,14 +485,12 @@ function PhaseTrace({
       ? `עִקְבִי אַחֲרֵי הַנְּקֻדּוֹת לְפִי הַסֵּדֶר`
       : `אֵיזוֹ אוֹת זוֹ? לַחְצִי עָלֶיהָ!`;
     playPhaseTransition();
-    const t = setTimeout(() => speak(txt, "instruction"), 400);
-    return () => clearTimeout(t);
+    return () => {};
   }, [traceMode, letter]);
 
   const handleTraceDone = useCallback(() => {
     setTraceDone(true);
     playTraceComplete();
-    speak("!כָּל הַכָּבוֹד", "encouragement");
     setTimeout(onNext, 1600);
   }, [onNext]);
 
@@ -515,12 +499,10 @@ function PhaseTrace({
     if (char === letter.char) {
       setChoiceDone(true);
       playCorrectChoice();
-      speak("!כָּל הַכָּבוֹד", "encouragement");
       setTimeout(onNext, 1400);
     } else {
       setChoiceWrong(char);
       playWrongChoice();
-      speak("נְנַסֶּה יַחַד! 💛");
       setTimeout(() => setChoiceWrong(null), 600);
     }
   }, [choiceDone, letter, onNext]);
@@ -569,12 +551,6 @@ function PhaseTrace({
         borderRadius: "var(--radius-lg)", padding: "0.8rem 1.4rem",
         boxShadow: "var(--shadow-sm)", direction: "rtl",
       }}>
-        <SpeakButton
-          text={traceMode === "dots"
-            ? `עִקְבִי אַחֲרֵי הַנְּקֻדּוֹת לְפִי הַסֵּדֶר`
-            : `אֵיזוֹ אוֹת זוֹ?`}
-          iconOnly rate={0.78}
-        />
         <p lang="he" dir="rtl" style={{
           margin: 0, fontFamily: "var(--font-primary)",
           fontSize: "var(--text-instruction)", fontWeight: "var(--font-semibold)",
@@ -724,7 +700,6 @@ function PhaseConnect({
     const t1 = setTimeout(() => setStep(1), 800);
     const t2 = setTimeout(() => {
       setStep(2);
-      speak(letter.syllableTTS, "syllable");
     }, 1700);
     const t3 = setTimeout(() => setStep(3), 2800);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
@@ -870,10 +845,6 @@ function PhaseConnect({
             exit={{ opacity: 0 }}
             style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}
           >
-            <SpeakButton
-              text={letter.syllableTTS}
-              rate={0.72}
-            />
             <motion.button
               onClick={onNext}
               whileTap={{ scale: 0.93 }}
@@ -919,8 +890,7 @@ function LetterComplete({
       ? `!סִיַּמְתְּ אֶת כָּל הָאוֹתִיּוֹת! כָּל הַכָּבוֹד`
       : `!כָּל הַכָּבוֹד! לָמַדְתְּ אֶת הָאוֹת ${letter.nameTTS}`;
     playLetterComplete();
-    const t = setTimeout(() => speak(msg, "encouragement"), 400);
-    return () => clearTimeout(t);
+    return () => {};
   }, [letter, isLast]);
 
   return (
@@ -993,7 +963,7 @@ function LetterComplete({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function LetterExplorer({ onBack, onSafeSpace, onComplete }: LetterExplorerProps) {
+export function LetterExplorer({ onBack, onSafeSpace, onComplete, onCorrectAnswer }: LetterExplorerProps) {
   const [letterIndex, setLetterIndex] = useState(0);
   const [phase,       setPhase]       = useState<Phase>("see");
   const { stars, recordCorrect } = useRewardStore();
@@ -1012,6 +982,7 @@ export function LetterExplorer({ onBack, onSafeSpace, onComplete }: LetterExplor
     });
     if (phase === "connect") {
       recordCorrect();
+      onCorrectAnswer?.();
       setCatFunny(true);
       setTimeout(() => setCatFunny(false), 900);
     }
