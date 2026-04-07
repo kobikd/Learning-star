@@ -5,7 +5,6 @@ import { WelcomeScreen }      from "./pages/WelcomeScreen";
 import { WorldMapScreen }     from "./pages/WorldMapScreen";
 import { CountingGarden }     from "./pages/activities/CountingGarden";
 import { LetterExplorer }     from "./pages/activities/LetterExplorer";
-import { StickerAward }       from "./components/feedback/StickerAward";
 import { StickerAlbum }       from "./components/ui/StickerAlbum";
 import { BreakScreen, EndOfDay } from "./pages/BreakScreen";
 import { useRewardStore }     from "./stores/rewardStore";
@@ -15,6 +14,8 @@ import { AdditionBubbles }     from "./pages/activities/AdditionBubbles";
 import { Gafbon }               from "./pages/activities/Gafbon";
 import { OceanSubtraction }     from "./pages/activities/OceanSubtraction";
 import { playWelcomeChime }    from "./audio/welcomeChime";
+import { RescueSession }       from "./components/rescue/RescueSession";
+import { GAME_CONFIGS }        from "./engine/gameRegistry";
 import "./index.css";
 
 // Break timer: random between 10 and 15 minutes (ms)
@@ -31,10 +32,6 @@ export default function App() {
   const [showAlbum,    setShowAlbum]    = useState(false);
   const [showBreak,    setShowBreak]    = useState(false);
   const [showEndOfDay, setShowEndOfDay] = useState(false);
-  const [awardSticker, setAwardSticker] = useState<
-    ReturnType<ReturnType<typeof useRewardStore.getState>["earnNextSticker"]>
-  >(null);
-
   // ── Welcome chime — plays on first user gesture ──
   useEffect(() => {
     const handler = () => {
@@ -113,6 +110,14 @@ export default function App() {
     navigate("/map");
   }
 
+  // ── Session completed with reward (from RescueSession) ───────────────────
+  function handleSessionComplete() {
+    markGameCompleted(location.pathname);
+    finishSession();
+    refreshCurriculum();
+    navigate("/map");
+  }
+
   // ── Break screen handlers ────────────────────────────────────────────────
   function handleBreakContinue() {
     setShowBreak(false);
@@ -170,44 +175,128 @@ export default function App() {
             } />
 
             <Route path="/counting" element={
-              <CountingGarden
-                onBack={handleActivityBack}
-                onSafeSpace={() => navigate("/safe-space")}
-                initialLevel={mathLevel}
-              />
+              GAME_CONFIGS["/counting"] ? (
+                <RescueSession
+                  config={GAME_CONFIGS["/counting"]}
+                  onSessionComplete={handleSessionComplete}
+                >
+                  {({ onCorrectAnswer, onComplete }) => (
+                    <CountingGarden
+                      onBack={handleActivityBack}
+                      onSafeSpace={() => navigate("/safe-space")}
+                      initialLevel={mathLevel}
+                      onCorrectAnswer={onCorrectAnswer}
+                      onComplete={onComplete}
+                    />
+                  )}
+                </RescueSession>
+              ) : (
+                <CountingGarden
+                  onBack={handleActivityBack}
+                  onSafeSpace={() => navigate("/safe-space")}
+                  initialLevel={mathLevel}
+                />
+              )
             } />
 
             <Route path="/addition" element={
-              <AdditionBubbles
-                onBack={handleActivityBack}
-                onSafeSpace={() => navigate("/safe-space")}
-                initialLevel={additionLevel}
-              />
+              GAME_CONFIGS["/addition"] ? (
+                <RescueSession
+                  config={GAME_CONFIGS["/addition"]}
+                  onSessionComplete={handleSessionComplete}
+                >
+                  {({ onCorrectAnswer, onComplete }) => (
+                    <AdditionBubbles
+                      onBack={handleActivityBack}
+                      onSafeSpace={() => navigate("/safe-space")}
+                      initialLevel={additionLevel}
+                      onCorrectAnswer={onCorrectAnswer}
+                      onComplete={onComplete}
+                    />
+                  )}
+                </RescueSession>
+              ) : (
+                <AdditionBubbles
+                  onBack={handleActivityBack}
+                  onSafeSpace={() => navigate("/safe-space")}
+                  initialLevel={additionLevel}
+                />
+              )
             } />
 
             <Route path="/gafbon" element={
-              <Gafbon
-                onBack={handleActivityBack}
-                onSafeSpace={() => navigate("/safe-space")}
-                onComplete={handleActivityBack}
-                initialLevel={gafbonLevel}
-              />
+              GAME_CONFIGS["/gafbon"] ? (
+                <RescueSession
+                  config={GAME_CONFIGS["/gafbon"]}
+                  onSessionComplete={handleSessionComplete}
+                >
+                  {({ onCorrectAnswer, onComplete }) => (
+                    <Gafbon
+                      onBack={handleActivityBack}
+                      onSafeSpace={() => navigate("/safe-space")}
+                      onComplete={onComplete}
+                      initialLevel={gafbonLevel}
+                      onCorrectAnswer={onCorrectAnswer}
+                    />
+                  )}
+                </RescueSession>
+              ) : (
+                <Gafbon
+                  onBack={handleActivityBack}
+                  onSafeSpace={() => navigate("/safe-space")}
+                  onComplete={handleActivityBack}
+                  initialLevel={gafbonLevel}
+                />
+              )
             } />
 
             <Route path="/subtraction" element={
-              <OceanSubtraction
-                onBack={handleActivityBack}
-                onSafeSpace={() => navigate("/safe-space")}
-                onComplete={handleActivityBack}
-                initialLevel={oceanSubLevel}
-              />
+              GAME_CONFIGS["/subtraction"] ? (
+                <RescueSession
+                  config={GAME_CONFIGS["/subtraction"]}
+                  onSessionComplete={handleSessionComplete}
+                >
+                  {({ onCorrectAnswer, onComplete }) => (
+                    <OceanSubtraction
+                      onBack={handleActivityBack}
+                      onSafeSpace={() => navigate("/safe-space")}
+                      onComplete={onComplete}
+                      initialLevel={oceanSubLevel}
+                      onCorrectAnswer={onCorrectAnswer}
+                    />
+                  )}
+                </RescueSession>
+              ) : (
+                <OceanSubtraction
+                  onBack={handleActivityBack}
+                  onSafeSpace={() => navigate("/safe-space")}
+                  onComplete={handleActivityBack}
+                  initialLevel={oceanSubLevel}
+                />
+              )
             } />
 
             <Route path="/reading" element={
-              <LetterExplorer
-                onBack={handleActivityBack}
-                onSafeSpace={() => navigate("/safe-space")}
-              />
+              GAME_CONFIGS["/reading"] ? (
+                <RescueSession
+                  config={GAME_CONFIGS["/reading"]}
+                  onSessionComplete={handleSessionComplete}
+                >
+                  {({ onCorrectAnswer, onComplete }) => (
+                    <LetterExplorer
+                      onBack={handleActivityBack}
+                      onSafeSpace={() => navigate("/safe-space")}
+                      onCorrectAnswer={onCorrectAnswer}
+                      onComplete={onComplete}
+                    />
+                  )}
+                </RescueSession>
+              ) : (
+                <LetterExplorer
+                  onBack={handleActivityBack}
+                  onSafeSpace={() => navigate("/safe-space")}
+                />
+              )
             } />
 
             <Route path="/safe-space" element={
@@ -236,16 +325,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* ── Sticker award ── */}
-      <AnimatePresence>
-        {awardSticker && (
-          <StickerAward
-            key="sticker-award"
-            sticker={awardSticker}
-            onDismiss={() => setAwardSticker(null)}
-          />
-        )}
-      </AnimatePresence>
 
       {/* ── Break screen ── */}
       <AnimatePresence>
