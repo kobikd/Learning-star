@@ -167,18 +167,20 @@ export function CatCharacter({
         overflow="visible"
       >
         {/* ── Tail ── */}
-        <motion.path
-          d="M138,218 Q188,195 175,152"
-          stroke={CAT_COLOR} strokeWidth={16} fill="none" strokeLinecap="round"
-          animate={{ d: ["M138,218 Q188,195 175,152","M138,218 Q195,185 180,148","M138,218 Q188,195 175,152"] }}
+        <motion.g
+          style={{ transformOrigin: "138px 218px" }}
+          animate={{ rotate: [0, 8, -4, 0] }}
           transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
-        />
-        <motion.path
-          d="M138,218 Q188,195 175,152"
-          stroke={CAT_DARK} strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.55}
-          animate={{ d: ["M138,218 Q188,195 175,152","M138,218 Q195,185 180,148","M138,218 Q188,195 175,152"] }}
-          transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
-        />
+        >
+          <path
+            d="M138,218 Q188,195 175,152"
+            stroke={CAT_COLOR} strokeWidth={16} fill="none" strokeLinecap="round"
+          />
+          <path
+            d="M138,218 Q188,195 175,152"
+            stroke={CAT_DARK} strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.55}
+          />
+        </motion.g>
 
         {/* ── Body ── */}
         <ellipse cx="100" cy="182" rx="54" ry="58" fill={CAT_COLOR} />

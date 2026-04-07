@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { speak, stopSpeech } from "../../utils/speak";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -12,17 +13,6 @@ interface SpeakButtonProps {
   rate?: number;
   /** Called after speech ends */
   onDone?: () => void;
-}
-
-// ─── TTS helpers ──────────────────────────────────────────────────────────────
-
-function getHebrewVoice(): SpeechSynthesisVoice | null {
-  const voices = window.speechSynthesis.getVoices();
-  return (
-    voices.find((v) => v.lang === "he-IL") ??
-    voices.find((v) => v.lang.startsWith("he")) ??
-    null
-  );
 }
 
 // ─── Sound wave bars (playing indicator) ─────────────────────────────────────
@@ -52,11 +42,10 @@ function SoundWave() {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
- * SpeakButton — reads Hebrew text aloud via Web Speech API.
+ * SpeakButton — reads Hebrew text aloud via the shared voice pipeline.
  *
  * Per CLAUDE.md: "narration always available — speaker button next to every text."
- * Uses he-IL voice if available; falls back gracefully.
- * Rate defaults to 0.85 (slightly slower, better for children).
+ * Rate is kept for compatibility but runtime playback is handled upstream.
  */
 export function SpeakButton({
   text,
@@ -65,58 +54,43 @@ export function SpeakButton({
   onDone,
 }: SpeakButtonProps) {
   const [speaking, setSpeaking] = useState(false);
-  const [supported, setSupported] = useState(true);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-
-  useEffect(() => {
-    if (!("speechSynthesis" in window)) {
-      setSupported(false);
-    }
-  }, []);
+  const timeoutRef = useRef<number | null>(null);
 
   // Stop speech when component unmounts
   useEffect(() => {
     return () => {
-      window.speechSynthesis?.cancel();
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
+      stopSpeech();
     };
   }, []);
 
-  const speak = useCallback(() => {
-    if (!supported) return;
-
-    // If already speaking, stop
+  const handleSpeak = useCallback(() => {
     if (speaking) {
-      window.speechSynthesis.cancel();
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      stopSpeech();
       setSpeaking(false);
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "he-IL";
-    utterance.rate = rate;
-    utterance.pitch = 1.05;  // slightly higher — friendlier for children
+    setSpeaking(true);
+    speak(text, "instruction");
 
-    // Try to use a Hebrew voice
-    // Voices may not be loaded yet on first render; retry once
-    const voice = getHebrewVoice();
-    if (voice) utterance.voice = voice;
-
-    utterance.onstart = () => setSpeaking(true);
-    utterance.onend = () => {
+    const estimatedDurationMs = Math.max(1800, Math.ceil(text.length * (420 / Math.max(rate, 0.1))));
+    timeoutRef.current = window.setTimeout(() => {
+      timeoutRef.current = null;
       setSpeaking(false);
       onDone?.();
-    };
-    utterance.onerror = () => setSpeaking(false);
-
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, [supported, speaking, text, rate, onDone]);
-
-  if (!supported) return null;
+    }, estimatedDurationMs);
+  }, [speaking, text, rate, onDone]);
 
   return (
     <motion.button
-      onClick={speak}
+      onClick={handleSpeak}
       aria-label={speaking ? "עצור קריאה" : "קרא בקול"}
       aria-pressed={speaking}
       whileTap={{ scale: 0.9 }}

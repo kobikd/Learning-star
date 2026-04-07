@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useCallback, useEffect } from "react";
-import { speak }             from "../utils/speak";
 import { useWelcomeMusic }  from "../hooks/useWelcomeMusic";
 import { BigButton }       from "../components/ui/BigButton";
 import { SafeSpaceButton } from "../components/ui/SafeSpaceButton";
@@ -70,7 +69,6 @@ export function WelcomeScreen({ onNavigate, onSafeSpace, starCount = 0 }: Welcom
     function tryPlay() {
       if (played) return;
       played = true;
-      speak("הֵי גֶּפֶן! מַה שְּׁלוֹמֵךְ?", "encouragement");
     }
     const t = setTimeout(tryPlay, 800);
     function onFirstTap() {

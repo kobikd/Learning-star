@@ -1,6 +1,5 @@
 import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import { useEffect, useState } from "react";
-import { speak } from "../utils/speak";
 
 // ─── Pre-computed assets ──────────────────────────────────────────────────────
 
@@ -259,8 +258,7 @@ export function BreakScreen({
 }: BreakScreenProps) {
   useEffect(() => {
     const t = setTimeout(
-      () => speak("יוֹפִי! עָשִׂית עֲבוֹדָה נֶהֱדֶרֶת! אֵיךְ אַתְּ מַרְגִּישָׁה?", "instruction"),
-      800
+            800
     );
     return () => clearTimeout(t);
   }, []);
@@ -562,8 +560,7 @@ export function EndOfDay({
 
   useEffect(() => {
     const t1 = setTimeout(
-      () => speak("כָּל הַכָּבוֹד! סִיַּמְתְּ לְהַיּוֹם. נִתְרָאֶה מָחָר!", "instruction"),
-      800
+            800
     );
     const t2 = setTimeout(() => setShowButton(true), 3500);
     return () => { clearTimeout(t1); clearTimeout(t2); };

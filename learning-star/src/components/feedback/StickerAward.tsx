@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import type { StickerDefinition } from "../../content/stickers";
-import { speak } from "../../utils/speak";
 
 // ─── Sparkle particles ────────────────────────────────────────────────────────
 
@@ -47,9 +46,7 @@ interface StickerAwardProps {
 
 export function StickerAward({ sticker, onDismiss }: StickerAwardProps) {
   useEffect(() => {
-    const t = setTimeout(
-      () => speak(`!כָּל הַכָּבוֹד! זָכִית בְּמַדְבֵּקָה — ${sticker.name}`, "instruction"),
-      500
+    const t = setTimeout(      500
     );
     return () => clearTimeout(t);
   }, [sticker]);

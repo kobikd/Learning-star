@@ -6,6 +6,7 @@ An adaptive learning web app for an 8-year-old Israeli girl (2nd grade) with dys
 - `docs/pedagogy.md` — CRA, Orton-Gillingham, UI/UX principles, sound rules, reward system
 - `docs/curriculum.md` — full math & Hebrew literacy curriculum with skill IDs
 - `docs/data-schema.md` — all TypeScript interfaces and localStorage shapes
+- `docs/game-templates/` — visual game templates (Ocean, Sky, Garden) — **read before building any new activity**
 
 ---
 
@@ -113,6 +114,22 @@ public/
 - Logic shared across activities → `src/hooks/`
 - Pure functions (no React) → `src/services/` or `src/engine/`
 - Types → `src/types/`
+
+---
+
+## Game Templates
+
+Every new activity MUST use one of the three visual templates. When creating a game, specify which template:
+
+| Template | File | Theme |
+|----------|------|-------|
+| **A — Ocean** | `docs/game-templates/template-ocean.md` | Underwater coral reef, translucent bubbles, fish |
+| **B — Sky** | `docs/game-templates/template-sky.md` | Pastel clouds, rainbow soap bubbles, butterflies |
+| **C — Garden** | `docs/game-templates/template-garden.md` | Sunny garden, dewdrops, flowers, ladybugs |
+
+Each template defines: background scene, color palette, component styling, animations (idle/correct/wrong/demo), cat companion costume, sound design notes, and template-specific encouragement lines.
+
+Common rules (touch targets, RTL, nikud, scaffolding, no negative feedback) apply to all templates — see `docs/game-templates/README.md`.
 
 ---
 
