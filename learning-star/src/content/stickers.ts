@@ -27,6 +27,7 @@ export const STICKERS: StickerDefinition[] = [
   { id: 'parrot',    emoji: '🦜', name: 'תֻּכִּי',      topic: 'animals' },
   { id: 'unicorn',   emoji: '🦄', name: 'חַד-קֶרֶן',    topic: 'animals' },
   { id: 'fox',       emoji: '🦊', name: 'שׁוּעָל',      topic: 'animals' },
+  { id: 'owl',       emoji: '🦉', name: 'יַנְשׁוּף',     topic: 'animals' },
   // ── Space ──
   { id: 'rocket',    emoji: '🚀', name: 'טִיל',          topic: 'space' },
   { id: 'star',      emoji: '⭐', name: 'כּוֹכָב',       topic: 'space' },
